@@ -1,0 +1,5 @@
+type: txt
+
+help: Set interface for sending connection tracking entries [REQUIRED]
+
+allowed: ${vyatta_sbindir}/vyatta-interfaces.pl --show all

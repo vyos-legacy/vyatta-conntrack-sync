@@ -1,0 +1,5 @@
+type: ipv4
+default:225.0.0.50
+help: Set multicast group for sending/receiving conntrack-sync packets
+syntax:expression: pattern $VAR(@) "^(22[4-9]|23[0-9])\."
+                   ; "IP address is not a multicast group"
