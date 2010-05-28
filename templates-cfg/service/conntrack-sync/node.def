@@ -1,11 +1,9 @@
 help: Enable connection syncing service
 
-priority: 995 # testing right now
+priority: 995 # after firewall conntrack settings, interface, interface-address, cluster and vrrp
 
 end: if [ ${COMMIT_ACTION} = 'DELETE' ]; then
-        echo execute conntrackd disable action
         sudo /opt/vyatta/sbin/vyatta-conntrack-sync.pl --action=disable
      else
-        echo execute conntrackd enable action
         sudo /opt/vyatta/sbin/vyatta-conntrack-sync.pl --action=enable
      fi;
