@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.3) unstable; urgency=low
+
+  * reorg vyatta-conntrack-sync code
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Tue, 01 Jun 2010 18:13:27 -0700
+
 vyatta-conntrack-sync (0.2) unstable; urgency=low
 
   * make conntrack-sync work with clustering
