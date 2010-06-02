@@ -10,6 +10,7 @@ sbin_SCRIPTS  = scripts/vyatta-conntrack-sync.pl
 
 bin_sudo_users_SCRIPTS  = scripts/vyatta-op-conntrack-sync.pl
 
+share_perl5_DATA  = lib/Vyatta/ConntrackSync.pm
 
 cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
   cpio -0pd
