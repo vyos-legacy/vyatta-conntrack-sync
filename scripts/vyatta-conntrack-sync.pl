@@ -46,7 +46,7 @@ sub conntrackd_restart {
   # failover mechanism daemon should be indicated 
   # that it needs to execute conntrackd actions
   if ( $HA eq 'cluster' ) {
-    $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='primary-secondary'");
+    $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
     die "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
   } else {
     die "$CONNTRACK_SYNC_ERR undefined HA!";
