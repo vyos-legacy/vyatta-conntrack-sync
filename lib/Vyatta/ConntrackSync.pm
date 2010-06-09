@@ -30,6 +30,7 @@ use Vyatta::Config;
 use Vyatta::Misc;
 use Vyatta::Interface;
 use Vyatta::TypeChecker;
+use Vyatta::Keepalived;
 use base qw(Exporter);
 
 our @EXPORT = qw(
@@ -140,7 +141,7 @@ sub generate_conntrackd_config {
   my @failover_mechanism =
     get_conntracksync_val( "listNodes", "failover-mechanism" );
   my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
-    "failover-mechanism $failover_mechanism[0] sync-group" );
+    "failover-mechanism $failover_mechanism[0] vrrp-sync-group" );
   my $mcast_grp = get_conntracksync_val( "returnValue", "mcast-group" );
 
   my $conntrack_table_size = `cat /proc/sys/net/netfilter/nf_conntrack_max`;
@@ -313,10 +314,39 @@ sub failover_mechanism_checks {
   } elsif ( $failover_mechanism[0] eq 'vrrp' ) {
     my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
       "failover-mechanism vrrp vrrp-sync-group" );
+
+    # make sure vrrp sync group is defined
     if ( !defined $vrrp_sync_grp ) {
       $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp-sync-group not defined";
       return $err_string;
     }
+
+    # make sure VRRP is running
+    if (!Vyatta::Keepalived::is_running()) {
+      $err_string = "VRRP isn't running";
+      return $err_string;
+    }
+
+    # make sure vrrp-sync-group exists
+    my $sync_grp_exists = 'false';
+    my @vrrp_intfs = Vyatta::Keepalived::list_vrrp_intf('isActive');
+    foreach my $vrrp_intf (@vrrp_intfs) {
+      my @vrrp_groups = list_vrrp_group($vrrp_intf, 'listOrigPlusComNodes');
+      foreach my $vrrp_group (@vrrp_groups) {
+        my $sync_grp = list_vrrp_sync_group($vrrp_intf, $vrrp_group, 'returnOrigPlusComValue');
+        if (defined $sync_grp && $sync_grp eq "$vrrp_sync_grp") {
+          $sync_grp_exists = 'true';
+          last;
+        }
+      }
+      last if $sync_grp_exists eq 'true';
+    }
+
+    if ($sync_grp_exists eq 'false') {
+      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp-sync-group does not exist";
+      return $err_string;
+    } 
+
   } else {
     $err_string = "$CONNTRACKSYNC_ERR_STRING invalid failover mechanism";
     return $err_string;

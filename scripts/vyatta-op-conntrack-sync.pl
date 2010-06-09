@@ -38,7 +38,6 @@ sub is_conntracksync_configured {
 
 sub ctsync_status {
 
-  # something like vpn ike|ipsec status along with failover-mechanism and interface
   my @failover_mechanism =
     get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
   my $ct_sync_intf = get_conntracksync_val( "returnOrigValue", "interface" );
@@ -46,10 +45,16 @@ sub ctsync_status {
   chomp $pid;
 
   my $cluster_grp = undef;
+  my $vrrp_sync_grp = undef;
   if ($failover_mechanism[0] eq 'cluster') {
-    $cluster_grp = get_conntracksync_val( "returnOrigValue", "failover-mechanism cluster cluster-group" );
+    $cluster_grp = get_conntracksync_val( 
+	"returnOrigValue", 
+	"failover-mechanism cluster cluster-group" );
   } elsif ($failover_mechanism[0] eq 'vrrp') {
-    # get VRRP specific info    
+    # get VRRP specific info 
+    $vrrp_sync_grp = get_conntracksync_val( 
+	"returnOrigValue", 
+	"failover-mechanism vrrp vrrp-sync-group" );   
   }
   
   
@@ -59,11 +64,9 @@ sub ctsync_status {
   print "sync-interface     : $ct_sync_intf\n";
   print "failover-mechanism : $failover_mechanism[0]";
   print " [cluster-group : $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
- 
-  ## depending on failover mechanism we might have to give some info about it
-  ## i.e. things like cluster group and status of this host for example
-
+  print " [vrrp-sync-group : $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
   print "\n";
+  
   return; 
 }
 

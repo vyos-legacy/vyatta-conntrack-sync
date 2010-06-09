@@ -2,7 +2,6 @@ help: Restart connection syncing process
 
 run: 
 
-if ! /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
-  exit 1
+if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
+  sudo /etc/init.d/conntrackd restart >&/dev/null
 fi
-sudo /etc/init.d/conntrackd restart >&/dev/null

@@ -36,6 +36,7 @@ my $HA    = undef;
 my $DAEMON         = '/usr/sbin/conntrackd';
 my $INIT_SCRIPT    = '/etc/init.d/conntrackd';
 my $CLUSTER_UPDATE = '/opt/vyatta/sbin/vyatta-update-cluster.pl';
+my $VRRP_UPDATE = '/opt/vyatta/sbin/vyatta-keepalived.pl';
 my $CONNTRACK_SYNC_ERR = 'conntrack-sync error:';
 
 sub conntrackd_restart {
@@ -48,6 +49,9 @@ sub conntrackd_restart {
   if ( $HA eq 'cluster' ) {
     $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
     die "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+  } elsif ( $HA eq 'vrrp' ) {
+    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+    die "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
   } else {
     die "$CONNTRACK_SYNC_ERR undefined HA!";
   }
@@ -63,6 +67,9 @@ sub conntrackd_stop {
   if ( $HA eq 'cluster' ) {
     $err = run_cmd("$CLUSTER_UPDATE");
     die "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+  } elsif ( $HA eq 'vrrp' ) {
+    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+    die "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
   } else {
     die "$CONNTRACK_SYNC_ERR undefined HA!";
   }

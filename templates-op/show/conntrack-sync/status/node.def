@@ -2,9 +2,7 @@ help: Show conntrack-sync status
 
 run:
 
-if ! /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
-  exit 1
+if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
+  /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=ctsync_status
 fi
-
-/opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=ctsync_status
 

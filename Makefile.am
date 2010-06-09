@@ -9,7 +9,8 @@ curver_DATA = cfg-version/conntrack-sync@1
 
 etc_init_SCRIPTS = scripts/vyatta-cluster-conntracksync
 
-sbin_SCRIPTS   = scripts/vyatta-conntrack-sync.pl
+sbin_SCRIPTS    = scripts/vyatta-conntrack-sync.pl
+sbin_SCRIPTS   += scripts/vyatta-vrrp-conntracksync.sh
 
 bin_sudo_users_SCRIPTS  = scripts/vyatta-op-conntrack-sync.pl
 

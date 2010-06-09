@@ -4,24 +4,22 @@ run:
 CONNTRACKD_BIN=/usr/sbin/conntrackd
 CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
 
-if ! /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
-  exit 1
-fi
-
-#
-# flush the external cache
-#
-sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -f external
-if [ $? -eq 1 ]
-then
-  echo "ERROR: failed to clear internal cache"
-fi
-
-#
-# request resynchronization with other systems
-#
-sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -n
-if [ $? -eq 1 ]
-then
-  echo "ERROR: failed to request resynchronization of external cache"
+if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
+  #
+  # flush the external cache
+  #
+  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -f external
+  if [ $? -eq 1 ]
+  then
+    echo "ERROR: failed to clear internal cache"
+  fi
+  
+  #
+  # request resynchronization with other systems
+  #
+  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -n
+  if [ $? -eq 1 ]
+  then
+    echo "ERROR: failed to request resynchronization of external cache"
+  fi
 fi
