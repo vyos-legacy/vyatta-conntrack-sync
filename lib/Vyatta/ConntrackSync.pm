@@ -44,6 +44,7 @@ our @EXPORT = qw(
 	interface_checks
 	failover_mechanism_checks
 	print_dbg_config_output
+	get_vrrp_sync_grps	
 );
 
 my $DEBUG="false";
@@ -291,9 +292,27 @@ sub failover_mechanism_checks {
     my $cluster_grp = get_conntracksync_val( "returnValue",
       "failover-mechanism cluster cluster-group" );
 
+    my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
+      "failover-mechanism cluster vrrp-sync-group" );
+
     # make sure cluster group is defined
     if ( !defined $cluster_grp ) {
       $err_string = "$CONNTRACKSYNC_ERR_STRING cluster-group not defined";
+      return $err_string;
+    }
+
+    # make sure vrrp sync group is not defined
+    if ( defined $vrrp_sync_grp ) {
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cannot define vrrp-sync-group" .
+		    " with cluster as failover-mechanism";
+      return $err_string;
+    }
+
+    # make sure cluster process is running
+    my $heartbeat_running = 0;
+    $heartbeat_running = run_cmd("pgrep heartbeat >&/dev/null");
+    if ($heartbeat_running != 0) {
+      $err_string = "$CONNTRACKSYNC_ERR_STRING Clustering isn't running";
       return $err_string;
     }
 
@@ -303,11 +322,7 @@ sub failover_mechanism_checks {
     if ( scalar(@cluster_grps) == 0
       || scalar( grep( /^$cluster_grp$/, @cluster_grps ) ) == 0 )
     {
-      # since cluster has a higher priority; it might have been deleted along
-      # with conntrack-sync; so check if heartbeat process is running or not
-      my $heartbeat_running = 0;
-      $heartbeat_running = run_cmd("pgrep heartbeat >&/dev/null");
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster-group does not exist" if $heartbeat_running == 0;
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster-group does not exist";
       return $err_string;
     }
 
@@ -315,15 +330,25 @@ sub failover_mechanism_checks {
     my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
       "failover-mechanism vrrp vrrp-sync-group" );
 
+    my $cluster_grp = get_conntracksync_val( "returnValue",
+      "failover-mechanism vrrp cluster-group" );
+
     # make sure vrrp sync group is defined
     if ( !defined $vrrp_sync_grp ) {
       $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp-sync-group not defined";
       return $err_string;
     }
 
+    # make sure cluster group is not defined
+    if ( defined $cluster_grp ) {
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cannot define cluster-group " . 
+		    "with vrrp as failover-mechanism";
+      return $err_string;
+    }
+
     # make sure VRRP is running
     if (!Vyatta::Keepalived::is_running()) {
-      $err_string = "VRRP isn't running";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING VRRP isn't running";
       return $err_string;
     }
 
@@ -359,6 +384,11 @@ sub print_dbg_config_output {
   my $config = shift;
   print "wrote the following generated conntrackd config file - \n$config\n"
     if $DEBUG eq 'true';
+}
+
+sub get_vrrp_sync_grps {
+  my @sync_grps = Vyatta::Keepalived::list_all_vrrp_sync_grps();
+  return @sync_grps;
 }
 
 1;

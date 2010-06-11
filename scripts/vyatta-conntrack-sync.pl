@@ -31,8 +31,6 @@ use Vyatta::ConntrackSync;
 use warnings;
 use strict;
 
-my $HA    = undef;
-
 my $DAEMON         = '/usr/sbin/conntrackd';
 my $INIT_SCRIPT    = '/etc/init.d/conntrackd';
 my $CLUSTER_UPDATE = '/opt/vyatta/sbin/vyatta-update-cluster.pl';
@@ -40,39 +38,62 @@ my $VRRP_UPDATE = '/opt/vyatta/sbin/vyatta-keepalived.pl';
 my $CONNTRACK_SYNC_ERR = 'conntrack-sync error:';
 
 sub conntrackd_restart {
+  my ($HA, $ORIG_HA) = @_;
+  my $stop_orig_HA = 'false';
+  if (defined $ORIG_HA) {
+    $stop_orig_HA = 'true' if !( $ORIG_HA eq $HA );
+  }
+
   my $err = 0;
   $err = run_cmd("$INIT_SCRIPT restart >&/dev/null");
-  die "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to start $DAEMON!" if $err != 0;
+  return "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to start $DAEMON!" if $err != 0;
 
-  # failover mechanism daemon should be indicated 
+  # failover mechanism daemon should be indicated
   # that it needs to execute conntrackd actions
   if ( $HA eq 'cluster' ) {
+
     $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
-    die "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+
+    # free VRRP from conntrack-sync actions
+    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true") if $stop_orig_HA eq 'true';
+    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+
   } elsif ( $HA eq 'vrrp' ) {
+
     $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
-    die "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+
+    # free clustering from conntrack-sync actions
+    $err = run_cmd("$CLUSTER_UPDATE") if $stop_orig_HA eq 'true';
+    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+
   } else {
-    die "$CONNTRACK_SYNC_ERR undefined HA!";
+    return "$CONNTRACK_SYNC_ERR undefined HA!";
   }
+
+  return;
 }
 
 sub conntrackd_stop {
+  my ($ORIG_HA) = @_;
+
   my $err = 0;
   $err = run_cmd("$INIT_SCRIPT stop >&/dev/null");
-  die "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to stop $DAEMON!" if $err != 0;
+  return "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to stop $DAEMON!" if $err != 0;
 
   # failover mechanism daemon should be indicated that
   # it NO longer needs to execute conntrackd actions
-  if ( $HA eq 'cluster' ) {
+  if ( $ORIG_HA eq 'cluster' ) {
     $err = run_cmd("$CLUSTER_UPDATE");
-    die "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
-  } elsif ( $HA eq 'vrrp' ) {
+    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+  } elsif ( $ORIG_HA eq 'vrrp' ) {
     $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
-    die "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
   } else {
-    die "$CONNTRACK_SYNC_ERR undefined HA!";
+    return "$CONNTRACK_SYNC_ERR undefined HA!";
   }
+  return;
 }
 
 sub validate_vyatta_conntrackd_config {
@@ -92,15 +113,23 @@ sub validate_vyatta_conntrackd_config {
 sub vyatta_enable_conntrackd {
 
   my $error = undef;
+  my $HA = undef;
+  my $ORIG_HA = undef;  
 
   # validate vyatta config
   $error = validate_vyatta_conntrackd_config();
   return ( $error, ) if defined $error;
 
   # set HA mechanism for conntrack sync start|stop functions
-  my @failover_mechanism =
+  my @failover_mechanism = ();
+
+  @failover_mechanism =
     get_conntracksync_val( "listNodes", "failover-mechanism" );
   $HA = $failover_mechanism[0];
+
+  @failover_mechanism =
+    get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
+  $ORIG_HA = $failover_mechanism[0];
 
   # generate conntrackd config
   my $config = generate_conntrackd_config();
@@ -112,22 +141,44 @@ sub vyatta_enable_conntrackd {
 
   # start conntrackd
   print "Starting conntrack-sync...\n";
-  conntrackd_restart();
+  $error = conntrackd_restart($HA, $ORIG_HA);
+  return ( $error, ) if defined $error;
+
   return;
 
 }
 
 sub vyatta_disable_conntrackd {
 
-  # set failover mechanism
-  my @failover_mechanism =
+  my $error = undef;
+  my $ORIG_HA = undef;
+  
+  # set HA mechanism for conntrack sync start|stop functions
+  my @failover_mechanism = ();
+
+  @failover_mechanism =
     get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
-  $HA = $failover_mechanism[0];
+  $ORIG_HA = $failover_mechanism[0];
 
   print "Stopping conntrack-sync...\n";
-  conntrackd_stop();
+  $error = conntrackd_stop($ORIG_HA);
+  return ( $error, ) if defined $error;
+
   return;
 
+}
+
+sub cluster_grps {
+  my @cluster_grps = 
+    get_config_val( 'listOrigPlusComNodes', 'cluster', 'group' );
+  print "@cluster_grps\n";
+  return;
+}
+
+sub vrrp_sync_grps {
+  my @sync_grps = get_vrrp_sync_grps();
+  print "@sync_grps\n";
+  return;
 }
 
 #
@@ -144,6 +195,8 @@ my ( $error, $warning );
 
 ( $error, $warning ) = vyatta_enable_conntrackd()  if $action eq 'enable';
 ( $error, $warning ) = vyatta_disable_conntrackd() if $action eq 'disable';
+( $error, $warning ) = cluster_grps() if $action eq 'cluster-grps';
+( $error, $warning ) = vrrp_sync_grps() if $action eq 'vrrp-sync-grps';
 
 if ( defined $warning ) {
   print "$warning\n";
