@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.6) unstable; urgency=low
+
+  * * free previous failover-mechanism from ct-sync actions when
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 11 Jun 2010 15:27:08 -0700
+
 vyatta-conntrack-sync (0.5) unstable; urgency=low
 
   * * make conntrack-sync work with vrrp
