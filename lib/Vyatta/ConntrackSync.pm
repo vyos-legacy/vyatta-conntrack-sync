@@ -151,28 +151,10 @@ sub generate_conntrackd_config {
   chomp $conntrack_table_size;
   my $cache_table_size = 2 * $conntrack_table_size;
 
-  my $socket_mem =
-    111616; # default value in bytes for net.core.wmem_max and net.core.rmem_max
   my $sync_queue_size =
     get_conntracksync_val( "returnValue", "sync-queue-size" );
   my $event_listen_queue_size =
     get_conntracksync_val( "returnValue", "event-listen-queue-size" );
-
-  if ( $event_listen_queue_size >= $sync_queue_size ) {
-    $socket_mem = $event_listen_queue_size;
-  } else {
-    $socket_mem = $sync_queue_size;
-  }
-
-  my $err = undef;
-  $err = run_cmd(
-"sysctl -w net.core.wmem_max=$socket_mem &>/dev/null; sysctl -w net.core.rmem_max=$socket_mem &>/dev/null"
-  );
-  if ( $err != 0 ) {
-    print
-      "$CONNTRACKSYNC_ERR_STRING unable to set net.core.wmem_max|net.core.rmem_max\n";
-    return undef;
-  }
 
   ## BEGIN CONFIG FILE GENERATION ##
   my $output = undef;
