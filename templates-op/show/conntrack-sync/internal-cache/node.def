@@ -1,9 +1,6 @@
 help: Show connection syncing internal cache entries
 
 run:
-CONNTRACKD_BIN=/usr/sbin/conntrackd
-CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
-
 if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
-  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i
+  sudo ${vyatta_bindir}/sudo-users/vyatta-show-ctsync-caches.pl --cache=internal
 fi

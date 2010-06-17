@@ -12,7 +12,8 @@ etc_init_SCRIPTS = scripts/vyatta-cluster-conntracksync
 sbin_SCRIPTS    = scripts/vyatta-conntrack-sync.pl
 sbin_SCRIPTS   += scripts/vyatta-vrrp-conntracksync.sh
 
-bin_sudo_users_SCRIPTS  = scripts/vyatta-op-conntrack-sync.pl
+bin_sudo_users_SCRIPTS   = scripts/vyatta-op-conntrack-sync.pl
+bin_sudo_users_SCRIPTS  += scripts/vyatta-show-ctsync-caches.pl
 
 share_perl5_DATA  = lib/Vyatta/ConntrackSync.pm
 
