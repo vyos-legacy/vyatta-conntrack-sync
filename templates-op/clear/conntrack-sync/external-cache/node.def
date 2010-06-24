@@ -11,7 +11,7 @@ if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_se
   sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -f external
   if [ $? -eq 1 ]
   then
-    echo "ERROR: failed to clear internal cache"
+    echo "ERROR: failed to clear external cache"
   fi
   
   #
