@@ -1,13 +1,1 @@
-tag:1
-
-type: txt
-
 help: Set failover mechanism [REQUIRED]
-
-syntax:expression: $VAR(@) in "vrrp", "cluster"; "failover-mechanism must be (vrrp or cluster)"
-
-comp_help:Possible completions:
-  vrrp          Set VRRP as the failover mechanism being used
-  cluster       Set clustering as the failover mechanism being used
-
-allowed: echo "vrrp cluster"

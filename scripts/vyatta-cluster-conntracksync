@@ -28,7 +28,7 @@ $LOGCMD "vyatta-cluster-conntracksync invoked at `date`"
 
 case "$1" in
   start)
-    $LOGCMD "`uname -n` transitioning to PRIMARY"
+    $LOGCMD "`uname -n` transitioning to PRIMARY state in CLUSTER"
     #
     # commit the external cache into the kernel table
     #
@@ -66,7 +66,7 @@ case "$1" in
     fi
     ;;
   stop)
-    $LOGCMD "`uname -n` transitioning to SECONDARY"
+    $LOGCMD "`uname -n` transitioning to SECONDARY state in CLUSTER"
     #
     # is conntrackd running? request some statistics to check it
     #
@@ -112,7 +112,7 @@ case "$1" in
     fi
     ;;
   *)
-    $LOGCMD "ERROR: `uname -n` unknown state transition"
+    $LOGCMD "ERROR: unknown state transition for CLUSTER"
     echo "Usage: vyatta-cluster-conntracksync {start|stop}"
     exit 1
     ;;

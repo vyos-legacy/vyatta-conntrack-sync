@@ -24,12 +24,13 @@ FACILITY=daemon
 LEVEL=notice
 TAG=conntrack-tools
 LOGCMD="logger -t $TAG -p $FACILITY.$LEVEL"
+VRRP_GRP="VRRP sync-group [$2]"
 
 $LOGCMD "vyatta-vrrp-conntracksync invoked at `date`"
 
 case "$1" in
   master)
-    $LOGCMD "`uname -n` transitioning to MASTER for sync-group [$2]"
+    $LOGCMD "`uname -n` transitioning to MASTER state for $VRRP_GRP"
     #
     # commit the external cache into the kernel table
     #
@@ -67,7 +68,7 @@ case "$1" in
     fi
     ;;
   backup)
-    $LOGCMD "`uname -n` transitioning to BACKUP for sync-group [$2]"
+    $LOGCMD "`uname -n` transitioning to BACKUP state for $VRRP_GRP"
     #
     # is conntrackd running? request some statistics to check it
     #
@@ -113,7 +114,7 @@ case "$1" in
     fi
     ;;
   fault)
-    $LOGCMD "`uname -n` transitioning to FAULT for sync-group [$2]"
+    $LOGCMD "`uname -n` transitioning to FAULT state for $VRRP_GRP"
     #
     # shorten kernel conntrack timers to remove the zombie entries.
     #
@@ -124,7 +125,7 @@ case "$1" in
     fi
     ;;
   *)
-    $LOGCMD "ERROR: unknown state transition for sync-group [$2]"
+    $LOGCMD "ERROR: unknown state transition for $VRRP_GRP"
     echo "Usage: vyatta-vrrp-conntracksync.sh {master|backup|fault}"
     exit 1
     ;;

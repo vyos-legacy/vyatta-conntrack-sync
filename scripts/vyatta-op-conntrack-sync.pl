@@ -49,12 +49,12 @@ sub ctsync_status {
   if ($failover_mechanism[0] eq 'cluster') {
     $cluster_grp = get_conntracksync_val( 
 	"returnOrigValue", 
-	"failover-mechanism cluster cluster-group" );
+	"failover-mechanism cluster group" );
   } elsif ($failover_mechanism[0] eq 'vrrp') {
     # get VRRP specific info 
     $vrrp_sync_grp = get_conntracksync_val( 
 	"returnOrigValue", 
-	"failover-mechanism vrrp vrrp-sync-group" );   
+	"failover-mechanism vrrp sync-group" );   
   }
   
   
@@ -63,8 +63,8 @@ sub ctsync_status {
   print "process id         : $pid\n";
   print "sync-interface     : $ct_sync_intf\n";
   print "failover-mechanism : $failover_mechanism[0]";
-  print " [cluster-group : $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
-  print " [vrrp-sync-group : $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
+  print " [group : $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
+  print " [sync-group : $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
   print "\n";
   
   return; 

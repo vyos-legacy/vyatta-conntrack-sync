@@ -59,7 +59,17 @@ my $GENERAL_SECTION_START    = "General {\n";
 my $SYNC_SECTION_START       = "Sync {\n";
 my $MODE_SECTION_START       = "\tMode FTFW {\n";
 my $MULTICAST_SECTION_START  = "\tMulticast {\n";
-my $FILTER_SECTION_START     = "\tFilter From Kernelspace {\n";
+
+# TODO : kernel-space event filtering saves some CPU cycles by avoiding the
+# copy of the event message from kernel-space to user-space. The kernel-space 
+# event filtering is prefered, however, you require a Linux kernel >= 2.6.29
+# to filter from kernel-space. CURRENTLY, we're using Userspace filtering 
+# because Kernelspace filtering seems BUGGY i.e. doesn't filter addresses 
+# such as 10.3.0.255 255.255.255.255. Reported to Netfilter developer and 
+# he plans to fix this in libnetfilter_conntrack. we would then have to 
+# upgrade libnetfilter-conntrack3 that has that fix
+my $FILTER_SECTION_START     = "\tFilter From Userspace {\n";
+
 my $ADDRIGNORE_SECTION_START = "\t\tAddress Ignore {\n";
 my $SECTION_END              = "}\n";
 my $CONNTRACKSYNC_ERR_STRING = "conntrack-sync error:";
@@ -139,10 +149,6 @@ sub generate_conntrackd_config {
   my $intf_name = get_conntracksync_val( "returnValue", "interface" );
   my @intf_ip = Vyatta::Misc::getIP( $intf_name, '4' );
   my @iponly = split( '/', $intf_ip[0] );
-  my @failover_mechanism =
-    get_conntracksync_val( "listNodes", "failover-mechanism" );
-  my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
-    "failover-mechanism $failover_mechanism[0] vrrp-sync-group" );
   my $mcast_grp = get_conntracksync_val( "returnValue", "mcast-group" );
 
   my $conntrack_table_size = `cat /proc/sys/net/netfilter/nf_conntrack_max`;
@@ -165,9 +171,8 @@ sub generate_conntrackd_config {
   $output .= $SYNC_SECTION_START;
 
   $output .= $MODE_SECTION_START;
-  $output .= "\t$SECTION_END";
-
   # mode section end
+  $output .= "\t$SECTION_END";
 
   $output .= $MULTICAST_SECTION_START;
   $output .= "\t\tIPv4_address $mcast_grp\n";
@@ -177,13 +182,11 @@ sub generate_conntrackd_config {
   $output .= "\t\tSndSocketBuffer $sync_queue_size\n";
   $output .= "\t\tRcvSocketBuffer $sync_queue_size\n";
   $output .= "\t\tChecksum on\n";
+  # multicast section end
   $output .= "\t$SECTION_END";
 
-  # multicast section end
-
-  $output .= "$SECTION_END";
-
   # SYNC SECTION END
+  $output .= "$SECTION_END";
 
   # GENERATE GENERAL SECTION
   $output .= "\n#\n# General settings\n#\n";
@@ -207,20 +210,28 @@ sub generate_conntrackd_config {
   $output .= "\tNetlinkOverrunResync Off\n";
   $output .= "\tNetlinkEventsReliable On\n";
 
-  $output .= $FILTER_SECTION_START;
-  $output .= $ADDRIGNORE_SECTION_START;
-  $output .= address_ignore('4');
-  $output .= address_ignore('6');
-  $output .= "\t\t$SECTION_END";
+  my $ipv4_ignore_list = address_ignore('4');
+  # uncomment lines below when conntrack-sync ipv6 is supported in future
+  # my $ipv6_ignore_list = address_ignore('6');
 
-  # addrignore section end
-  $output .= "\t$SECTION_END";
-
-  # filter section end
-
-  $output .= "$SECTION_END";
+  if (!($ipv4_ignore_list eq '')) {
+  
+  	$output .= $FILTER_SECTION_START;
+  	$output .= $ADDRIGNORE_SECTION_START;
+  	$output .= $ipv4_ignore_list;
+  
+  	# ignoring ipv6 right now up until it's implemented
+  	# $output .= $ipv6_ignore_list;
+  	
+  	# addrignore section end
+  	$output .= "\t\t$SECTION_END";
+  	# filter section end
+  	$output .= "\t$SECTION_END";
+  
+  }	
 
   # GENERAL SECTION END
+  $output .= "$SECTION_END";
 
   ## END CONFIG FILE GENERATION ##
 
@@ -267,26 +278,21 @@ sub failover_mechanism_checks {
   if ( scalar(@failover_mechanism) == 0 ) {
     $err_string = "$CONNTRACKSYNC_ERR_STRING failover mechanism not defined";
     return $err_string;
+  } elsif ( scalar(@failover_mechanism) > 1 ) {
+  	$err_string = 
+  		"$CONNTRACKSYNC_ERR_STRING can't set both vrrp " . 
+  		"and cluster as failover mechanism";
+  	return $err_string;
   }
 
   # checks for failover mechanism settings specific to the mechanism
   if ( $failover_mechanism[0] eq 'cluster' ) {
     my $cluster_grp = get_conntracksync_val( "returnValue",
-      "failover-mechanism cluster cluster-group" );
-
-    my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
-      "failover-mechanism cluster vrrp-sync-group" );
+      "failover-mechanism cluster group" );
 
     # make sure cluster group is defined
     if ( !defined $cluster_grp ) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster-group not defined";
-      return $err_string;
-    }
-
-    # make sure vrrp sync group is not defined
-    if ( defined $vrrp_sync_grp ) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cannot define vrrp-sync-group" .
-		    " with cluster as failover-mechanism";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster group not defined";
       return $err_string;
     }
 
@@ -298,33 +304,23 @@ sub failover_mechanism_checks {
       return $err_string;
     }
 
-    # make sure cluster-group exists
+    # make sure cluster group exists
     my @cluster_grps =
       get_config_val( 'listOrigPlusComNodes', 'cluster', 'group' );
     if ( scalar(@cluster_grps) == 0
       || scalar( grep( /^$cluster_grp$/, @cluster_grps ) ) == 0 )
     {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster-group does not exist";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster group does not exist";
       return $err_string;
     }
 
   } elsif ( $failover_mechanism[0] eq 'vrrp' ) {
     my $vrrp_sync_grp = get_conntracksync_val( "returnValue",
-      "failover-mechanism vrrp vrrp-sync-group" );
-
-    my $cluster_grp = get_conntracksync_val( "returnValue",
-      "failover-mechanism vrrp cluster-group" );
+      "failover-mechanism vrrp sync-group" );
 
     # make sure vrrp sync group is defined
     if ( !defined $vrrp_sync_grp ) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp-sync-group not defined";
-      return $err_string;
-    }
-
-    # make sure cluster group is not defined
-    if ( defined $cluster_grp ) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cannot define cluster-group " . 
-		    "with vrrp as failover-mechanism";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp sync-group not defined";
       return $err_string;
     }
 
@@ -334,7 +330,7 @@ sub failover_mechanism_checks {
       return $err_string;
     }
 
-    # make sure vrrp-sync-group exists
+    # make sure vrrp sync-group exists
     my $sync_grp_exists = 'false';
     my @vrrp_intfs = Vyatta::Keepalived::list_vrrp_intf('isActive');
     foreach my $vrrp_intf (@vrrp_intfs) {
@@ -350,7 +346,7 @@ sub failover_mechanism_checks {
     }
 
     if ($sync_grp_exists eq 'false') {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp-sync-group does not exist";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp sync-group does not exist";
       return $err_string;
     } 
 

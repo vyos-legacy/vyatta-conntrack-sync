@@ -52,21 +52,25 @@ sub conntrackd_restart {
   # that it needs to execute conntrackd actions
   if ( $HA eq 'cluster' ) {
 
-    $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
-    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
-
-    # free VRRP from conntrack-sync actions
+    # if needed; free VRRP from conntrack-sync actions
     $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true") if $stop_orig_HA eq 'true';
     return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
 
+	# indicate to clustering that it needs to execute 
+	# conntrack-sync actions on state transitions
+    $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
+    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+
   } elsif ( $HA eq 'vrrp' ) {
 
-    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
-    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
-
-    # free clustering from conntrack-sync actions
+    # if needed; free clustering from conntrack-sync actions
     $err = run_cmd("$CLUSTER_UPDATE") if $stop_orig_HA eq 'true';
     return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+
+	# indicate to VRRP that it needs to execute
+	# conntrack-sync actions on state transitions
+    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
 
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";
@@ -79,8 +83,6 @@ sub conntrackd_stop {
   my ($ORIG_HA) = @_;
 
   my $err = 0;
-  $err = run_cmd("$INIT_SCRIPT stop >&/dev/null");
-  return "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to stop $DAEMON!" if $err != 0;
 
   # failover mechanism daemon should be indicated that
   # it NO longer needs to execute conntrackd actions
@@ -93,6 +95,11 @@ sub conntrackd_stop {
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";
   }
+  
+  # stop conntrackd daemon
+  $err = run_cmd("$INIT_SCRIPT stop >&/dev/null");
+  return "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to stop $DAEMON!" if $err != 0;
+  
   return;
 }
 
@@ -140,7 +147,6 @@ sub vyatta_enable_conntrackd {
   print_dbg_config_output($config);
 
   # start conntrackd
-  print "Starting conntrack-sync...\n";
   $error = conntrackd_restart($HA, $ORIG_HA);
   return ( $error, ) if defined $error;
 
@@ -160,7 +166,6 @@ sub vyatta_disable_conntrackd {
     get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
   $ORIG_HA = $failover_mechanism[0];
 
-  print "Stopping conntrack-sync...\n";
   $error = conntrackd_stop($ORIG_HA);
   return ( $error, ) if defined $error;
 

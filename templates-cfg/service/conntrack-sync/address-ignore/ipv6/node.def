@@ -1,3 +1,0 @@
-multi:
-type: ipv6,ipv6net
-help: Set IPv6 addresses to ignore traffic for
