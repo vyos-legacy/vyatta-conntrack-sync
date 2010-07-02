@@ -1,3 +1,3 @@
 type: u32
-default:8388608
-help: Set conntrack sync event listen queue size (in bytes)
+default:8
+help: Set queue size for listening to local conntrack events (in MB)

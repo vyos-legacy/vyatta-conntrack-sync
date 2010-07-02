@@ -71,6 +71,7 @@ my $MULTICAST_SECTION_START  = "\tMulticast {\n";
 my $FILTER_SECTION_START     = "\tFilter From Userspace {\n";
 
 my $ADDRIGNORE_SECTION_START = "\t\tAddress Ignore {\n";
+my $PROTOACCEPT_SECTION_START = "\t\tProtocol Accept {\n";
 my $SECTION_END              = "}\n";
 my $CONNTRACKSYNC_ERR_STRING = "conntrack-sync error:";
 
@@ -124,9 +125,9 @@ sub address_ignore {
   my $cli_type  = undef;
   $cli_type = 'ipv4' if $addr_type eq '4';
   $cli_type = 'ipv6' if $addr_type eq '6';
-  my $output = "";
+  my $output = undef;
   my @addrs =
-    get_conntracksync_val( "returnValues", "address-ignore $cli_type" );
+    get_conntracksync_val( "returnValues", "ignore-address $cli_type" );
   foreach my $addr (@addrs) {
 
     # check type of address
@@ -140,6 +141,30 @@ sub address_ignore {
       $output .= "\t\t\tIPv6_address $addr\n"
         if validateType( 'ipv6net', $addr, 'quiet' );
     }
+  }
+  return $output;
+}
+
+sub proto_accept {
+  my $output = undef;
+  my $proto_string =
+  	get_conntracksync_val( "returnValue", "accept-protocol" );
+  my @proto_list = ();
+  
+  if (defined $proto_string) {
+    my @string_list = split(/,/, $proto_string);
+    while(@string_list) {
+      # capitalize protocol values for conntrackd config
+      $string_list[0] =~ tr/a-z/A-Z/;
+      if (!(scalar(grep(/^$string_list[0]$/, @proto_list)) > 0)) {
+        push @proto_list, $string_list[0];
+      }
+      shift(@string_list);
+    } 
+    while(@proto_list) {
+      $output .= "\t\t\t$proto_list[0]\n";
+      shift(@proto_list);
+    } 
   }
   return $output;
 }
@@ -161,7 +186,11 @@ sub generate_conntrackd_config {
     get_conntracksync_val( "returnValue", "sync-queue-size" );
   my $event_listen_queue_size =
     get_conntracksync_val( "returnValue", "event-listen-queue-size" );
-
+    
+  # convert to MB to B for underlying conntrackd config
+  $sync_queue_size = $sync_queue_size * 1024 * 1024;
+  $event_listen_queue_size = $event_listen_queue_size * 1024 * 1024;
+  
   ## BEGIN CONFIG FILE GENERATION ##
   my $output = undef;
   $output = conf_file_header();
@@ -211,20 +240,30 @@ sub generate_conntrackd_config {
   $output .= "\tNetlinkEventsReliable On\n";
 
   my $ipv4_ignore_list = address_ignore('4');
+  my $proto_accept_list = proto_accept();
   # uncomment lines below when conntrack-sync ipv6 is supported in future
   # my $ipv6_ignore_list = address_ignore('6');
 
-  if (!($ipv4_ignore_list eq '')) {
+  if (defined $ipv4_ignore_list || defined $proto_accept_list) {
   
   	$output .= $FILTER_SECTION_START;
-  	$output .= $ADDRIGNORE_SECTION_START;
-  	$output .= $ipv4_ignore_list;
-  
-  	# ignoring ipv6 right now up until it's implemented
-  	# $output .= $ipv6_ignore_list;
   	
-  	# addrignore section end
-  	$output .= "\t\t$SECTION_END";
+  	if (defined $ipv4_ignore_list) {
+  		$output .= $ADDRIGNORE_SECTION_START;
+  		$output .= $ipv4_ignore_list;
+  		# ignoring ipv6 right now up until it's implemented
+  		# $output .= $ipv6_ignore_list;
+  		# addrignore section end
+  		$output .= "\t\t$SECTION_END";
+  	}
+  	
+  	if (defined $proto_accept_list) {
+  		$output .= $PROTOACCEPT_SECTION_START;
+  		$output .= $proto_accept_list;
+  		# proto section section end
+  		$output .= "\t\t$SECTION_END";
+  	}
+  	
   	# filter section end
   	$output .= "\t$SECTION_END";
   

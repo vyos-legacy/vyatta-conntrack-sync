@@ -1,0 +1,10 @@
+type: txt
+
+help: Set protocols only for which local conntrack entries will be synced
+
+val_help: <protocol>;tcp udp icmp sctp [eg. tcp or tcp,udp]
+
+syntax:expression: pattern $VAR(@) "^(((tcp|udp|icmp|sctp),)\
+*((tcp|udp|icmp|sctp)))$" ; \
+"Invalid value for protocol. Allowed values : tcp udp icmp sctp
+When specifying more than one protocol, protocols should be comma-separated.

@@ -112,7 +112,7 @@ case "$1" in
     fi
     ;;
   *)
-    $LOGCMD "ERROR: unknown state transition for CLUSTER"
+    $LOGCMD "ERROR: `uname -n` unknown state transition in CLUSTER"
     echo "Usage: vyatta-cluster-conntracksync {start|stop}"
     exit 1
     ;;

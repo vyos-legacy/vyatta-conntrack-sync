@@ -1,3 +1,0 @@
-multi:
-type: ipv4,ipv4net
-help: Set IPv4 addresses to ignore traffic for

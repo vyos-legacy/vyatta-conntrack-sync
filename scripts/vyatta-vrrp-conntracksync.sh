@@ -125,7 +125,7 @@ case "$1" in
     fi
     ;;
   *)
-    $LOGCMD "ERROR: unknown state transition for $VRRP_GRP"
+    $LOGCMD "ERROR: `uname -n` unknown state transition for $VRRP_GRP"
     echo "Usage: vyatta-vrrp-conntracksync.sh {master|backup|fault}"
     exit 1
     ;;
