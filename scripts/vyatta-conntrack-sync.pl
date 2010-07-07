@@ -36,6 +36,7 @@ my $INIT_SCRIPT    = '/etc/init.d/conntrackd';
 my $CLUSTER_UPDATE = '/opt/vyatta/sbin/vyatta-update-cluster.pl';
 my $VRRP_UPDATE = '/opt/vyatta/sbin/vyatta-keepalived.pl';
 my $CONNTRACK_SYNC_ERR = 'conntrack-sync error:';
+my $FAILOVER_STATE_FILE = '/var/run/vyatta-conntrackd-failover-state';
 
 sub conntrackd_restart {
   my ($HA, $ORIG_HA) = @_;
@@ -75,7 +76,10 @@ sub conntrackd_restart {
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";
   }
-
+  
+  # remove old transition state
+  unlink($FAILOVER_STATE_FILE);
+  
   return;
 }
 
@@ -99,6 +103,9 @@ sub conntrackd_stop {
   # stop conntrackd daemon
   $err = run_cmd("$INIT_SCRIPT stop >&/dev/null");
   return "$CONNTRACK_SYNC_ERR $INIT_SCRIPT failed to stop $DAEMON!" if $err != 0;
+  
+  # remove old transition state
+  unlink($FAILOVER_STATE_FILE);
   
   return;
 }

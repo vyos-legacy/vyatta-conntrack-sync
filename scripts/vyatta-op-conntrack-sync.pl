@@ -30,6 +30,8 @@ use Vyatta::ConntrackSync;
 use warnings;
 use strict;
 
+my $FAILOVER_STATE_FILE = '/var/run/vyatta-conntrackd-failover-state';
+
 sub is_conntracksync_configured {
   my $conntrack_sync_intf = get_conntracksync_val('returnOrigValue', 'interface');
   return "conntrack-sync not configured" if ! defined $conntrack_sync_intf;
@@ -41,8 +43,9 @@ sub ctsync_status {
   my @failover_mechanism =
     get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
   my $ct_sync_intf = get_conntracksync_val( "returnOrigValue", "interface" );
-  my $pid = `sudo pgrep conntrackd`;
-  chomp $pid;
+  my $service_uptime = `sudo /usr/sbin/conntrackd -s runtime | grep 'daemon uptime'`;
+  chomp $service_uptime;
+  $service_uptime =~ s/daemon uptime: //;
 
   my $cluster_grp = undef;
   my $vrrp_sync_grp = undef;
@@ -57,15 +60,19 @@ sub ctsync_status {
 	"failover-mechanism vrrp sync-group" );   
   }
   
+  my $failover_state = "no transition yet!";
+  if (-e $FAILOVER_STATE_FILE) {
+	$failover_state = `cat $FAILOVER_STATE_FILE`;
+  }
   
   print "\nconntrack-sync status\n";
   print   "---------------------\n";
-  print "process id         : $pid\n";
-  print "sync-interface     : $ct_sync_intf\n";
-  print "failover-mechanism : $failover_mechanism[0]";
-  print " [group : $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
-  print " [sync-group : $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
-  print "\n";
+  print "uptime                : $service_uptime\n";
+  print "sync-interface        : $ct_sync_intf\n";
+  print "failover-mechanism    : $failover_mechanism[0]";
+  print " [group $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
+  print " [sync-group $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
+  print "last state transition : $failover_state\n";
   
   return; 
 }

@@ -23,11 +23,18 @@ FACILITY=daemon
 LEVEL=notice
 TAG=conntrack-tools
 LOGCMD="logger -t $TAG -p $FACILITY.$LEVEL"
+FAILOVER_STATE="/var/run/vyatta-conntrackd-failover-state"
 
 $LOGCMD "vyatta-cluster-conntracksync invoked at `date`"
 
+if [ ! -e $FAILOVER_STATE ]; then
+	mkdir -p /var/run
+	touch $FAILOVER_STATE
+fi
+        
 case "$1" in
   start)
+    echo PRIMARY at `date` > $FAILOVER_STATE
     $LOGCMD "`uname -n` transitioning to PRIMARY state in CLUSTER"
     #
     # commit the external cache into the kernel table
@@ -66,6 +73,7 @@ case "$1" in
     fi
     ;;
   stop)
+    echo SECONDARY at `date` > $FAILOVER_STATE
     $LOGCMD "`uname -n` transitioning to SECONDARY state in CLUSTER"
     #
     # is conntrackd running? request some statistics to check it
@@ -112,6 +120,7 @@ case "$1" in
     fi
     ;;
   *)
+    echo UNKNOWN at `date` > $FAILOVER_STATE
     $LOGCMD "ERROR: `uname -n` unknown state transition in CLUSTER"
     echo "Usage: vyatta-cluster-conntracksync {start|stop}"
     exit 1
