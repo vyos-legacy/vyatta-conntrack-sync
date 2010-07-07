@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.12) unstable; urgency=low
+
+  * update output for 'show conntrack-sync status' per review
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Tue, 06 Jul 2010 18:05:19 -0700
+
 vyatta-conntrack-sync (0.11) unstable; urgency=low
 
   * add filtering on protocol and more
