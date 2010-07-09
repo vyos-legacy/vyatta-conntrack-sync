@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.13) unstable; urgency=low
+
+  * minor changes to op-mode commands
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Fri, 09 Jul 2010 15:55:09 -0700
+
 vyatta-conntrack-sync (0.12) unstable; urgency=low
 
   * update output for 'show conntrack-sync status' per review
