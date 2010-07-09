@@ -54,31 +54,40 @@ sub conntrackd_restart {
   if ( $HA eq 'cluster' ) {
 
     # if needed; free VRRP from conntrack-sync actions
-    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true") if $stop_orig_HA eq 'true';
-    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+    if ($stop_orig_HA eq 'true') {
+       $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+       return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+       sleep 1; # let the old mechanism settle down before switching to new one
+    }
 
-	# indicate to clustering that it needs to execute 
-	# conntrack-sync actions on state transitions
+    # remove old transition state
+    unlink($FAILOVER_STATE_FILE);
+
+    # indicate to clustering that it needs to execute 
+    # conntrack-sync actions on state transitions
     $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
     return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
 
   } elsif ( $HA eq 'vrrp' ) {
 
     # if needed; free clustering from conntrack-sync actions
-    $err = run_cmd("$CLUSTER_UPDATE") if $stop_orig_HA eq 'true';
-    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+    if ($stop_orig_HA eq 'true') {
+        $err = run_cmd("$CLUSTER_UPDATE");
+        return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+        sleep 1; # let the old mechanism settle down before switching to new one
+    }
 
-	# indicate to VRRP that it needs to execute
-	# conntrack-sync actions on state transitions
+    # remove old transition state
+    unlink($FAILOVER_STATE_FILE);
+
+    # indicate to VRRP that it needs to execute
+    # conntrack-sync actions on state transitions
     $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
     return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
 
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";
   }
-  
-  # remove old transition state
-  unlink($FAILOVER_STATE_FILE);
   
   return;
 }

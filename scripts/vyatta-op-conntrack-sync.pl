@@ -64,9 +64,7 @@ sub ctsync_status {
   if (-e $FAILOVER_STATE_FILE) {
 	$failover_state = `cat $FAILOVER_STATE_FILE`;
   }
-  
-  print "\nconntrack-sync status\n";
-  print   "---------------------\n";
+  print "\n";
   print "uptime                : $service_uptime\n";
   print "sync-interface        : $ct_sync_intf\n";
   print "failover-mechanism    : $failover_mechanism[0]";

@@ -1,10 +1,14 @@
 help: Clear internal cache, sync with kernel conntrack table and send bulk update
 
 run:
-CONNTRACKD_BIN=/usr/sbin/conntrackd
-CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
-
 if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
+  CONNTRACKD_BIN=/usr/sbin/conntrackd
+  CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
+  FACILITY=daemon
+  LEVEL=notice
+  TAG=conntrack-tools
+  LOGCMD="logger -t $TAG -p $FACILITY.$LEVEL"
+  $LOGCMD "operational mode command 'clear conntrack-sync internal-cache' invoked"
   #
   # flush the internal cache
   #
@@ -13,7 +17,7 @@ if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_se
   then
     echo "ERROR: failed to clear internal cache"
   fi
-  
+
   #
   # resynchronize my internal cache with kernel conntrack table
   #
@@ -22,7 +26,7 @@ if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_se
   then
     echo "ERROR: failed to resynchronize internal cache with the kernel conntrack table"
   fi
-  
+
   #
   # send bulk update to other systems
   #

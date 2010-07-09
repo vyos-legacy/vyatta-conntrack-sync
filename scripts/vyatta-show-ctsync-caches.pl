@@ -81,15 +81,15 @@ sub print_xml {
         my ($proto, $protonum, $in_src, $in_dst, $out_src, $out_dst);
         $proto    = $proto{original};
         $protonum = $protonum{original};
-        $in_src   = "$src{original}";
+        $in_src   = "|$src{original}|";
         $in_src  .= ":$sport{original}" if defined $sport{original};
-        $in_dst   = "$dst{original}";
+        $in_dst   = "|$dst{original}|";
         $in_dst  .= ":$dport{original}" if defined $dport{original};
 
         # not using these for now
-        $out_src  = "$dst{reply}";
+        $out_src  = "|$dst{reply}|";
         $out_src .= ":$dport{reply}" if defined $dport{reply};
-        $out_dst  = "$src{reply}";
+        $out_dst  = "|$src{reply}|";
         $out_dst .= ":$sport{reply}" if defined $sport{reply};
 
         my $protocol = $proto . ' [' . $protonum . ']';
