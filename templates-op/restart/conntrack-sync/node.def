@@ -1,7 +1,41 @@
-help: Restart connection syncing process
+help: Restart connection tracking synchronization service
 
 run: 
 
 if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
+
+  # conntrackd only re-populates internal-cache when restarted. after
+  # restart, we request resync with replica systems to populate external-cache
+  # and send a bulk update of internal-cache to replica systems
+
+  CONNTRACKD_BIN=/usr/sbin/conntrackd
+  CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
+  FACILITY=daemon
+  LEVEL=notice
+  TAG=conntrack-tools
+  LOGCMD="logger -t $TAG -p $FACILITY.$LEVEL"
+  $LOGCMD "operational mode command 'restart conntrack-sync' invoked"
+
+  # restart conntrackd
   sudo /etc/init.d/conntrackd restart >&/dev/null
+
+  #
+  # request resynchronization with other systems
+  #
+  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -n
+  if [ $? -eq 1 ]
+  then
+    echo "ERROR: failed to request resynchronization of external cache"
+  fi
+
+  #
+  # send bulk update of internal-cache to other systems
+  #
+  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -B
+  if [ $? -eq 1 ]
+  then
+    echo "ERROR: failed to send bulk update to other conntrack-sync systems"
+  fi
+
+
 fi
