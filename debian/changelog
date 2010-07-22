@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.15) unstable; urgency=low
+
+  * remove verb usage from the begining of help strings
+
+ -- Mohit Mehta <mohit.mehta@vyatta.com>  Wed, 21 Jul 2010 18:44:51 -0700
+
 vyatta-conntrack-sync (0.14) unstable; urgency=low
 
   * resync external cache and send bulk update of internal cache after
