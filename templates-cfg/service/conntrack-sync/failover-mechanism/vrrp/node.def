@@ -1,1 +1,1 @@
-help: Set VRRP as failover-mechanism to use for conntrack-sync
+help: VRRP as failover-mechanism to use for conntrack-sync

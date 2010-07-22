@@ -1,1 +1,1 @@
-help: Set failover mechanism to use for conntrack-sync [REQUIRED]
+help: Failover mechanism to use for conntrack-sync [REQUIRED]

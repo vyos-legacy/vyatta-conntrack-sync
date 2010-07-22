@@ -1,4 +1,4 @@
-help: Enable connection syncing service
+help: Connection tracking synchronization (conntrack-sync) service
 
 priority: 995 # after firewall conntrack settings, interface, interface-address, cluster and vrrp
 

@@ -1,5 +1,5 @@
 type: txt
 
-help: Set interface for syncing conntrack entries [REQUIRED]
+help: Interface to use for syncing conntrack entries [REQUIRED]
 
 allowed: ${vyatta_sbindir}/vyatta-interfaces.pl --show all
