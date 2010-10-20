@@ -1,4 +1,13 @@
 #!/bin/sh
+### BEGIN INIT INFO
+# Provides:           vyatta-cluster-conntracksync
+# Required-Start:     $network $remote_fs $syslog
+# Required-Stop:      $network $remote_fs $syslog
+# Default-Start:
+# Default-Stop:
+# Short-Description:  Connection tracking synchronization
+# Description:        Netfilter connection tracking clustering service
+### END INIT INFO
 #
 # (C) 2008 by Pablo Neira Ayuso <pablo@netfilter.org>
 #
@@ -31,6 +40,8 @@ if [ ! -e $FAILOVER_STATE ]; then
 	mkdir -p /var/run
 	touch $FAILOVER_STATE
 fi
+
+
         
 case "$1" in
   start)
