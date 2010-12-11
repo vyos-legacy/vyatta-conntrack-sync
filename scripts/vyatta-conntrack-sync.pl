@@ -55,7 +55,7 @@ sub conntrackd_restart {
 
     # if needed; free VRRP from conntrack-sync actions
     if ($stop_orig_HA eq 'true') {
-       $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+       $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
        return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
        sleep 1; # let the old mechanism settle down before switching to new one
     }
@@ -82,7 +82,7 @@ sub conntrackd_restart {
 
     # indicate to VRRP that it needs to execute
     # conntrack-sync actions on state transitions
-    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+    $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
     return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
 
   } else {
@@ -103,7 +103,7 @@ sub conntrackd_stop {
     $err = run_cmd("$CLUSTER_UPDATE");
     return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
   } elsif ( $ORIG_HA eq 'vrrp' ) {
-    $err = run_cmd("$VRRP_UPDATE --vrrp-action update --ctsync true");
+    $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
     return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";
