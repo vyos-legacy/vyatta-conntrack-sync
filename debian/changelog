@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.20+mendocino1) unstable; urgency=low
+
+  * new branch
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Tue, 28 Dec 2010 20:36:59 +0000
+
 vyatta-conntrack-sync (0.20) unstable; urgency=low
 
   * Fix 6453: After configuring VRRP on interface, VRRP is not active
