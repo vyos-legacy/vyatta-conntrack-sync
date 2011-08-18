@@ -1,4 +1,4 @@
-help: Clear external cache and request resync with other systems
+help: Reset external cache and request resync with other systems
 
 run:
 if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
