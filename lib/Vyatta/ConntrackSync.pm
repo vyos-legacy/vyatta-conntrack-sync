@@ -244,7 +244,7 @@ sub generate_conntrackd_config {
       $output .= $OPTIONS_SECTION_START;
       # Expectation sync start
       $output .= $OPTIONS_EXPECTATIONSYNC_START;
-      if ($expect_all_flag) {
+      if ($expect_all_flag eq 'true') {
          $output .= "\t\t\tftp\n";
          $output .= "\t\t\tsip\n"; 
          $output .= "\t\t\th323\n"; 
@@ -252,7 +252,7 @@ sub generate_conntrackd_config {
  #       $output .= SQL*net 
       } else {
          foreach (@expect_sync_protocols) {
- 	     $output .= $_;
+ 	     $output .= "\t\t\t$_\n";
          } 
       }
       # Expectation sync end 
