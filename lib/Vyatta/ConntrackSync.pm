@@ -59,6 +59,9 @@ my $GENERAL_SECTION_START    = "General {\n";
 my $SYNC_SECTION_START       = "Sync {\n";
 my $MODE_SECTION_START       = "\tMode FTFW {\n";
 my $MULTICAST_SECTION_START  = "\tMulticast {\n";
+my $OPTIONS_SECTION_START    = "\tOptions {\n";
+my $OPTIONS_EXPECTATIONSYNC_START    = "\t\tExpectationSync {\n";
+
 
 # TODO : kernel-space event filtering saves some CPU cycles by avoiding the
 # copy of the event message from kernel-space to user-space. The kernel-space 
@@ -171,6 +174,9 @@ sub proto_accept {
 
 sub generate_conntrackd_config {
 
+  my $expect_all_flag = 'false';
+  my $expect_sync_configured = 'false';
+
   my $intf_name = get_conntracksync_val( "returnValue", "interface" );
   my @intf_ip = Vyatta::Misc::getIP( $intf_name, '4' );
   my @iponly = split( '/', $intf_ip[0] );
@@ -187,6 +193,22 @@ sub generate_conntrackd_config {
   my $event_listen_queue_size =
     get_conntracksync_val( "returnValue", "event-listen-queue-size" );
     
+  # get protocols for which expect table is to be synched. 
+  my @expect_sync_protocols = 
+    get_conntracksync_val( "returnValues", "expect-sync");
+
+  #create hash of expect-sync protocols from the array 
+  my %hash_expect_sync_protocols = map { $_ => 1 } @expect_sync_protocols;  
+
+  if (%hash_expect_sync_protocols) {
+      $expect_sync_configured = 'true';
+      
+      # If all is enabled, then set expect_all_flag   
+      if(exists($hash_expect_sync_protocols{"all"})) {
+         $expect_all_flag = 'true'; 
+      }
+  }
+
   # convert to MB to B for underlying conntrackd config
   $sync_queue_size = $sync_queue_size * 1024 * 1024;
   $event_listen_queue_size = $event_listen_queue_size * 1024 * 1024;
@@ -213,6 +235,29 @@ sub generate_conntrackd_config {
   $output .= "\t\tChecksum on\n";
   # multicast section end
   $output .= "\t$SECTION_END";
+
+  # If any expect-sync protocolis configured, write options section
+  if ($expect_sync_configured) {
+      # Options section start
+      $output .= $OPTIONS_SECTION_START;
+      # Expectation sync start
+      $output .= $OPTIONS_EXPECTATIONSYNC_START;
+      if ($expect_all_flag) {
+         $output .= "\t\t\tftp\n";
+         $output .= "\t\t\tsip\n"; 
+         $output .= "\t\t\th323\n"; 
+ #       $output .= NFS 
+ #       $output .= SQL*net 
+      } else {
+         foreach (@expect_sync_protocols) {
+ 	     $output .= $_;
+         } 
+      }
+      # Expectation sync end 
+      $output .= "\t\t$SECTION_END";
+      # Options section end
+      $output .= "\t$SECTION_END";
+  }
 
   # SYNC SECTION END
   $output .= "$SECTION_END";
