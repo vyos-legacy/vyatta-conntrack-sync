@@ -197,15 +197,17 @@ sub generate_conntrackd_config {
   my @expect_sync_protocols = 
     get_conntracksync_val( "returnValues", "expect-sync");
 
-  #create hash of expect-sync protocols from the array 
-  my %hash_expect_sync_protocols = map { $_ => 1 } @expect_sync_protocols;  
+  if (@expect_sync_protocols) {
+      #create hash of expect-sync protocols from the array 
+      my %hash_expect_sync_protocols = map { $_ => 1 } @expect_sync_protocols;  
 
-  if (%hash_expect_sync_protocols) {
-      $expect_sync_configured = 'true';
+      if (%hash_expect_sync_protocols) {
+          $expect_sync_configured = 'true';
       
-      # If all is enabled, then set expect_all_flag   
-      if(exists($hash_expect_sync_protocols{"all"})) {
-         $expect_all_flag = 'true'; 
+          # If all is enabled, then set expect_all_flag   
+          if(exists($hash_expect_sync_protocols{"all"})) {
+             $expect_all_flag = 'true'; 
+          }
       }
   }
 
@@ -237,7 +239,7 @@ sub generate_conntrackd_config {
   $output .= "\t$SECTION_END";
 
   # If any expect-sync protocolis configured, write options section
-  if ($expect_sync_configured) {
+  if ($expect_sync_configured eq 'true') {
       # Options section start
       $output .= $OPTIONS_SECTION_START;
       # Expectation sync start
