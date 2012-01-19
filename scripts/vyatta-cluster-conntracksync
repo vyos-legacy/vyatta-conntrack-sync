@@ -55,6 +55,14 @@ case "$1" in
     then
         $LOGCMD "ERROR: failed to invoke conntrackd -c"
     fi
+    #
+    # Commit expect entries in the cache to kernel
+    # 
+    $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -c exp
+    if [ $? -eq 1 ]
+    then
+        $LOGCMD "ERROR: failed to invoke conntrackd -c exp"
+    fi
 
     #
     # flush the internal and the external caches

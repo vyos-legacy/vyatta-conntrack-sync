@@ -49,6 +49,15 @@ case "$1" in
     fi
 
     #
+    # commit the expect entries to the kernel
+    #
+    $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -c exp
+    if [ $? -eq 1 ]
+    then
+        $LOGCMD "ERROR: failed to invoke conntrackd -ce exp"
+    fi
+
+    #
     # flush the internal and the external caches
     #
     $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -f
