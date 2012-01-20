@@ -69,14 +69,30 @@ sub ctsync_status {
   if (-e $FAILOVER_STATE_FILE) {
 	$failover_state = `cat $FAILOVER_STATE_FILE`;
   }
+  my @expect_sync_protocols = 
+      get_conntracksync_val("returnOrigValues", "expect-sync");
+  my $expect_list;
+  if (@expect_sync_protocols) {
+      foreach (@expect_sync_protocols) {
+          if (!($expect_list)) {
+              $expect_list .= $_; 
+          } else {
+              $expect_list .= ", $_"; 
+          }
+      }
+  }
   print "\n";
   print "uptime                : $service_uptime\n";
   print "sync-interface        : $ct_sync_intf\n";
   print "failover-mechanism    : $failover_mechanism[0]";
   print " [group $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
   print " [sync-group $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
-  print "last state transition : $failover_state\n";
-  
+  print "last state transition : $failover_state";
+  if ($expect_list) {
+      print "ExpectationSync       : enabled for $expect_list"; 
+  } else {
+      print "ExpectationSync       : disabled"; 
+  }
   return; 
 }
 
