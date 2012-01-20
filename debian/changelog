@@ -1,3 +1,20 @@
+vyatta-conntrack-sync (0.24) unstable; urgency=low
+
+  * Configuration CLI template for expect-sync
+  * Added initial code to configure and write conntrackd.conf with
+    ExpectationSync configs
+  * Fixed problem with delete command: delete all now clears configs as
+    expected
+  * Modified cluster-conntracksync and vrrp-conntracksync.sh to commit
+    expect entries to kernel on fail-over
+  * Fix writing specific protcols to conntrackd.conf
+  * show internal-cache for expect and main table
+  * Show command for external cache exp, and main
+  * Adding show conntrack-sync statistics main | expect command
+  * Added code for show conntrack-sync status to show expect sync status
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 20 Jan 2012 15:36:10 -0800
+
 vyatta-conntrack-sync (0.23) unstable; urgency=low
 
   * Move 'clear conntrack-sync' to 'reset conntrack-sync'
