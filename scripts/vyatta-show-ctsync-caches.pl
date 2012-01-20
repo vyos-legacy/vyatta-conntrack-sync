@@ -105,9 +105,11 @@ sub print_xml {
 # main
 #
 
-my ($cache);
+my ($cache, $expect, $main);
 
 GetOptions("cache=s"    => \$cache,
+           "expect=s"   => \$expect,
+           "main=s"     => \$main,
 );
 
 if  (! -f $CONNTRACKD_BIN) {
@@ -115,21 +117,42 @@ if  (! -f $CONNTRACKD_BIN) {
 }
 
 my $xs = XML::Simple->new(ForceArray => 1, KeepRoot => 0);
-my ($xml, $data);
+my ($xml1, $xml2, $data);
 
 printf($format, 'Source', 'Destination', 'Protocol');
 print "\n";
 
 if ($cache eq 'internal') {
-  $xml = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
+  if (defined $expect) {
+      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x exp`;
+  } elsif (defined $main) {
+      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
+  } else {
+      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
+      $xml2 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x exp`;
+  }
 } elsif ($cache eq 'external') {
-  $xml = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
+  if (defined $expect) {
+      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x exp`;
+  } elsif (defined $main) {
+      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
+  } else {
+      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
+      $xml2 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x exp`;
+  }
 } else {
   die "unknown cache type for conntrackd";
 }
 
-$xml = add_xml_root($xml);
-$data = $xs->XMLin($xml);
-print_xml($data, $cache);
+if (defined ($xml1)) {
+    $xml1 = add_xml_root($xml1);
+    $data = $xs->XMLin($xml1);
+    print_xml($data, $cache);
+}
+if (defined ($xml2)) {
+    $xml2 = add_xml_root($xml2);
+    $data = $xs->XMLin($xml2);
+    print_xml($data, $cache);
+}
 
 # end of file

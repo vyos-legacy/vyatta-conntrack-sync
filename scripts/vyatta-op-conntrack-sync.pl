@@ -37,6 +37,11 @@ sub is_conntracksync_configured {
   return "conntrack-sync not configured" if ! defined $conntrack_sync_intf;
   return;
 }
+sub is_expectsync_configured {
+  my @protocols = get_conntracksync_val('returnOrigValue', 'expect-sync');
+  return "expect-sync not configured" if !@protocols;
+  return;
+}
 
 sub ctsync_status {
 
@@ -88,6 +93,8 @@ die "undefined action" if !defined $action;
 my ( $error, $warning );
 
 ( $error, $warning ) = is_conntracksync_configured()  if $action eq 'is_ctsync_set';
+( $error, $warning ) = is_expectsync_configured()  if $action eq 'is_expsync_set';
+
 ( $error, $warning ) = ctsync_status()  if $action eq 'ctsync_status';
 
 if ( defined $warning ) {
