@@ -1,0 +1,9 @@
+help: Show connection syncing statistics
+
+run:
+CONNTRACKD_BIN=/usr/sbin/conntrackd
+CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
+
+if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set; then
+  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -s
+fi
