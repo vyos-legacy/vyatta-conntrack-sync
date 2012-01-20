@@ -1,0 +1,6 @@
+help: Show conntrack expect table connection syncing internal cache entries
+
+run:
+if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_expsync_set; then
+  sudo ${vyatta_bindir}/sudo-users/vyatta-show-ctsync-caches.pl --cache=internal --expect=exp
+fi
