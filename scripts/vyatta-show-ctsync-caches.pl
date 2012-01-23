@@ -44,6 +44,47 @@ sub add_xml_root {
     return $xml;
 }
 
+sub print_expect_xml {
+    my ($data, $cache) = @_;
+
+    my $flow = 0;
+
+    my %flowh;
+    while (1) {
+        last if ! defined $data->{flow}[$flow];
+        my $flow_ref = $data->{flow}[$flow];
+        my ($src, $dst, $sport, $dport, $proto, $protonum);
+        while (1) {
+                last if ! defined $flow_ref;
+                my $l3_ref    = $flow_ref->{layer3}[0];
+                my $l4_ref    = $flow_ref->{layer4}[0];
+                my $expected_l3 = $l3_ref->{expected}[0];
+                my $expected_l4 = $l4_ref->{expected}[0];
+                if (defined $expected_l3) {
+                    $src = $expected_l3->{src}[0];
+                    $dst = $expected_l3->{dst}[0];
+                    if (defined $expected_l4) {
+                        $sport = $expected_l4->{sport}[0];
+                        $dport = $expected_l4->{dport}[0];
+                        $proto = $l4_ref->{protoname};
+                        $protonum = $l4_ref->{protonum};
+                    }
+                }
+                $flow++;
+                $flow_ref = $data->{flow}[$flow];
+                my $in_src =  "|$src|"; 
+                my $in_dst = "|$dst|"; 
+                my $protocol = $proto . ' [' . $protonum . ']';
+                $in_src .= ":$sport";
+                $in_dst .= ":$dport";
+                printf($format, $in_src, $in_dst, $protocol);
+                print "\n";
+       }
+        $flow++;
+    }
+    return $flow;
+}
+
 sub print_xml {
     my ($data, $cache) = @_;
 
@@ -117,42 +158,53 @@ if  (! -f $CONNTRACKD_BIN) {
 }
 
 my $xs = XML::Simple->new(ForceArray => 1, KeepRoot => 0);
-my ($xml1, $xml2, $data);
+my ($xml_main, $xml_expect, $data);
 
 printf($format, 'Source', 'Destination', 'Protocol');
 print "\n";
 
 if ($cache eq 'internal') {
   if (defined $expect) {
-      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x exp`;
+      $xml_expect = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i exp -x`;
   } elsif (defined $main) {
-      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
+      $xml_main = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
   } else {
-      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
-      $xml2 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x exp`;
+      $xml_main = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i -x`;
+      $xml_expect = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -i exp -x`;
   }
 } elsif ($cache eq 'external') {
   if (defined $expect) {
-      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x exp`;
+      $xml_expect = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e exp -x`;
   } elsif (defined $main) {
-      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
+      $xml_main = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
   } else {
-      $xml1 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
-      $xml2 = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x exp`;
+      $xml_main = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e -x`;
+      $xml_expect = `$CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -e exp -x`;
   }
 } else {
   die "unknown cache type for conntrackd";
 }
 
-if (defined ($xml1)) {
-    $xml1 = add_xml_root($xml1);
-    $data = $xs->XMLin($xml1);
+if ((defined($xml_main)) && (defined($xml_expect))) {
+    printf("\nMain Table Entries:\n\n");
+    $xml_main = add_xml_root($xml_main);
+    $data = $xs->XMLin($xml_main);
+    print_xml($data, $cache);
+
+    printf("\nExpect Table Entries:\n\n");
+    $xml_expect = add_xml_root($xml_expect);
+    $data = $xs->XMLin($xml_expect);
+    print_expect_xml($data, $cache);
+}
+if (defined ($xml_main)) {
+    $xml_main = add_xml_root($xml_main);
+    $data = $xs->XMLin($xml_main);
     print_xml($data, $cache);
 }
-if (defined ($xml2)) {
-    $xml2 = add_xml_root($xml2);
-    $data = $xs->XMLin($xml2);
-    print_xml($data, $cache);
+if (defined ($xml_expect)) {
+    $xml_expect = add_xml_root($xml_expect);
+    $data = $xs->XMLin($xml_expect);
+    print_expect_xml($data, $cache);
 }
 
 # end of file
