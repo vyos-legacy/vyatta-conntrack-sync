@@ -1,3 +1,10 @@
+vyatta-conntrack-sync (0.26) unstable; urgency=low
+
+  * Show command for int/ext. cache with expect/main options, added
+    function to print xml
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 23 Jan 2012 14:59:20 -0800
+
 vyatta-conntrack-sync (0.25) unstable; urgency=low
 
   * Removing asterix(*) from SQL*net
