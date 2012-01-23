@@ -1,4 +1,4 @@
 multi:
 type: txt
 help: Protocol for which expect entries need to be synchronized.
-syntax:expression:  $VAR(@) in "all", "ftp", "sip", "h323", "NFS", "SQL*net"; "Invalid protocol name $VAR(@)"
+syntax:expression:  $VAR(@) in "all", "ftp", "sip", "h323", "NFS", "SQLnet"; "Invalid protocol name $VAR(@)"
