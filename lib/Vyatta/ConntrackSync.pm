@@ -43,6 +43,7 @@ our @EXPORT = qw(
 	generate_conntrackd_config
 	interface_checks
 	failover_mechanism_checks
+	expect_sync_protocols_checks
 	print_dbg_config_output
 	get_vrrp_sync_grps	
 );
@@ -444,6 +445,33 @@ sub failover_mechanism_checks {
   return $err_string;
 }
 
+sub expect_sync_protocols_checks() {
+  my $err_string = undef;
+
+  # If expect-sync is configured 
+
+  my @expect_sync_protocols = get_conntracksync_val( "returnValues", "expect-sync" );
+  if (@expect_sync_protocols) {
+    my @expect_sync_orig_protocols = get_conntracksync_val("returnOrigValues", "expect-sync");
+    if (@expect_sync_orig_protocols) {
+       foreach (@expect_sync_orig_protocols) {
+           if ($_ eq "all") {
+              print "$_ \n";
+              $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync all before configuring other protocols"; 
+              return $err_string;
+           } 
+       }
+       foreach (@expect_sync_protocols) {
+           if ($_ eq "all") {
+              print "$_ \n";
+              $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync <protocol(s)> before configuring all protocols"; 
+              return $err_string;
+           } 
+       }
+    }
+  }
+  return $err_string;
+}
 sub print_dbg_config_output {
   my $config = shift;
   print "wrote the following generated conntrackd config file - \n$config\n"

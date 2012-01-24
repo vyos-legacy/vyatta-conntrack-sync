@@ -130,6 +130,10 @@ sub validate_vyatta_conntrackd_config {
   $err_string = failover_mechanism_checks();
   return $err_string if defined $err_string;
 
+  # validate that all and <protocols> for expect-sync are mutually exclusive
+  $err_string = expect_sync_protocols_checks();
+  return $err_string if defined $err_string;
+
   return $err_string;
 }
 
