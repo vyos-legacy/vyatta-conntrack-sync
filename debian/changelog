@@ -1,3 +1,10 @@
+vyatta-conntrack-sync (0.27) unstable; urgency=low
+
+  * Error check for mutual exclusion of expect-sync all and expect-sync
+    protocols in configuration of expect-sync
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 23 Jan 2012 17:49:13 -0800
+
 vyatta-conntrack-sync (0.26) unstable; urgency=low
 
   * Show command for int/ext. cache with expect/main options, added
