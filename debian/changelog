@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.29) unstable; urgency=low
+
+  * Fixing show conntrack-sync expect-sync output
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Thu, 26 Jan 2012 13:29:11 -0800
+
 vyatta-conntrack-sync (0.28) unstable; urgency=low
 
   * Fixing show conntrack-sync status in case of all protocols being
