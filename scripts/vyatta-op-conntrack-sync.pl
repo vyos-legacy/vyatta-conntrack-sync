@@ -89,7 +89,11 @@ sub ctsync_status {
   print " [sync-group $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
   print "last state transition : $failover_state";
   if ($expect_list) {
-      print "ExpectationSync       : enabled for $expect_list"; 
+      if ($expect_list eq 'all') {
+          print "ExpectationSync       : enabled for $expect_list: ftp, sip, h323"; 
+      } else {
+          print "ExpectationSync       : enabled for $expect_list"; 
+      }
   } else {
       print "ExpectationSync       : disabled"; 
   }
