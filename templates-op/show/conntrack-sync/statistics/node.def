@@ -5,12 +5,8 @@ CONNTRACKD_BIN=/usr/sbin/conntrackd
 CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
 
 if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set --action=is_expsync_set; then
-  echo "\n------------------------------------------------------\n"
-  echo "             Main Table Statistics\n"
-  echo "------------------------------------------------------\n"
+  echo "\nMain Table Statistics:\n\n"
   sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -s
-  echo "\n------------------------------------------------------\n"
-  echo "             Expect Table Statistics\n"
-  echo "------------------------------------------------------\n"
+  echo "\nExpect Table Statistics:\n\n"
   sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -s exp
 fi
