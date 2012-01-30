@@ -451,25 +451,39 @@ sub expect_sync_protocols_checks() {
   # If expect-sync is configured 
 
   my @expect_sync_protocols = get_conntracksync_val( "returnValues", "expect-sync" );
+  my @expect_sync_orig_protocols = get_conntracksync_val("returnOrigValues", "expect-sync");
+
+  my $num_orig_expect = @expect_sync_orig_protocols;
+  my $num_expect = @expect_sync_protocols;
+
+  # make sure that all is the only entry if it is present  
   if (@expect_sync_protocols) {
-    my @expect_sync_orig_protocols = get_conntracksync_val("returnOrigValues", "expect-sync");
+      foreach (@expect_sync_protocols) {
+          if (($_ eq 'all') and ($num_expect > 1)) {
+             $err_string = "$CONNTRACKSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
+             return $err_string;
+          } 
+      }
+  }
+
+  # make sure if existing configuration has 'all' don't allow any protocols and vice-versa.
+  if (@expect_sync_protocols) {
+    # expect-sync is already configured
     if (@expect_sync_orig_protocols) {
        foreach (@expect_sync_orig_protocols) {
            if ($_ eq "all") {
-              print "$_ \n";
               $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync all before configuring other protocols"; 
               return $err_string;
            } 
        }
        foreach (@expect_sync_protocols) {
            if ($_ eq "all") {
-              print "$_ \n";
-              $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync <protocol(s)> before configuring all protocols"; 
+              $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync protocol(s) before configuring all protocols"; 
               return $err_string;
            } 
        }
     }
-  }
+  }  
   return $err_string;
 }
 sub print_dbg_config_output {
