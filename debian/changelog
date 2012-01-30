@@ -1,3 +1,10 @@
+vyatta-conntrack-sync (0.30) unstable; urgency=low
+
+  * Bug 7752: Fixing special case of commit containing all and one or
+    more expect-sync protocols to spit out error
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 30 Jan 2012 15:07:32 -0800
+
 vyatta-conntrack-sync (0.29) unstable; urgency=low
 
   * Fixing show conntrack-sync expect-sync output
