@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.32) unstable; urgency=low
+
+  * fixing bug:7766
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 01 Feb 2012 15:28:25 -0800
+
 vyatta-conntrack-sync (0.31) unstable; urgency=low
 
   * Bug 7758: changed the error strings for consistency
