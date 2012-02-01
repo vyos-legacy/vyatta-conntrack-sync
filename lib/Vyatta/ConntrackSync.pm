@@ -472,13 +472,13 @@ sub expect_sync_protocols_checks() {
     if (@expect_sync_orig_protocols) {
        foreach (@expect_sync_orig_protocols) {
            if ($_ eq "all") {
-              $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync all before configuring other protocols"; 
+              $err_string = "$CONNTRACKSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
               return $err_string;
            } 
        }
        foreach (@expect_sync_protocols) {
            if ($_ eq "all") {
-              $err_string = "$CONNTRACKSYNC_ERR_STRING Please remove expect-sync protocol(s) before configuring all protocols"; 
+              $err_string = "$CONNTRACKSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
               return $err_string;
            } 
        }
