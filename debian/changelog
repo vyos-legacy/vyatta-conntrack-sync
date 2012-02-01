@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.31) unstable; urgency=low
+
+  * Bug 7758: changed the error strings for consistency
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 01 Feb 2012 11:02:42 -0800
+
 vyatta-conntrack-sync (0.30) unstable; urgency=low
 
   * Bug 7752: Fixing special case of commit containing all and one or
