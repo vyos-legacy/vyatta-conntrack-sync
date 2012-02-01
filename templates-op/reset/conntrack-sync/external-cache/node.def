@@ -8,7 +8,7 @@ if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_se
   LEVEL=notice
   TAG=conntrack-tools
   LOGCMD="logger -t $TAG -p $FACILITY.$LEVEL"
-  $LOGCMD "operational mode command 'clear conntrack-sync external-cache' invoked"
+  $LOGCMD "operational mode command 'reset conntrack-sync external-cache' invoked"
   #
   # flush the external cache
   #

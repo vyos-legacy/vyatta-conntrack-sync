@@ -78,6 +78,7 @@ my $ADDRIGNORE_SECTION_START = "\t\tAddress Ignore {\n";
 my $PROTOACCEPT_SECTION_START = "\t\tProtocol Accept {\n";
 my $SECTION_END              = "}\n";
 my $CONNTRACKSYNC_ERR_STRING = "conntrack-sync error:";
+my $EXPECTSYNC_ERR_STRING = "expect-sync error:";
 
 sub run_cmd {
     my $cmd = shift;
@@ -460,7 +461,7 @@ sub expect_sync_protocols_checks() {
   if (@expect_sync_protocols) {
       foreach (@expect_sync_protocols) {
           if (($_ eq 'all') and ($num_expect > 1)) {
-             $err_string = "$CONNTRACKSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
+             $err_string = "$EXPECTSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
              return $err_string;
           } 
       }
@@ -472,13 +473,13 @@ sub expect_sync_protocols_checks() {
     if (@expect_sync_orig_protocols) {
        foreach (@expect_sync_orig_protocols) {
            if ($_ eq "all") {
-              $err_string = "$CONNTRACKSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
+              $err_string = "$EXPECTSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
               return $err_string;
            } 
        }
        foreach (@expect_sync_protocols) {
            if ($_ eq "all") {
-              $err_string = "$CONNTRACKSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
+              $err_string = "$EXPECTSYNC_ERR_STRING Cannot configure all with other protocol(s)"; 
               return $err_string;
            } 
        }
