@@ -68,6 +68,13 @@ sub print_expect_xml {
                         $dport = $expected_l4->{dport}[0];
                         $proto = $l4_ref->{protoname};
                         $protonum = $l4_ref->{protonum};
+                        my $mask_ref = $l4_ref->{mask}[0];
+                        my $mask_sport = $mask_ref->{sport}[0];
+                        if ($mask_sport eq '0') {
+                            if ($sport eq '0') {
+                                $sport = 'any';
+                            }
+                        }
                     }
                 }
                 $flow++;
