@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.33) unstable; urgency=low
+
+  * Fix 7763: use any when mask for sport is zero
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 01 Feb 2012 17:27:53 -0800
+
 vyatta-conntrack-sync (0.32) unstable; urgency=low
 
   * fixing bug:7766
