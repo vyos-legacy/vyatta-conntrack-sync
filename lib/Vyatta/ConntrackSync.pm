@@ -457,6 +457,13 @@ sub expect_sync_protocols_checks() {
   my $num_orig_expect = @expect_sync_orig_protocols;
   my $num_expect = @expect_sync_protocols;
 
+  #special case: if all is already configured and user tries to configure all again
+  if (((@expect_sync_protocols) and ($num_expect == 1)) and 
+      ((@expect_sync_orig_protocols) and ($num_orig_expect == 1))) {
+     if ($expect_sync_protocols[0] eq $expect_sync_orig_protocols[0]) {
+         return $err_string;
+     } 
+  }
   # make sure that all is the only entry if it is present  
   if (@expect_sync_protocols) {
       foreach (@expect_sync_protocols) {
