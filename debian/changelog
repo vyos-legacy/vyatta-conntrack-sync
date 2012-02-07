@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.34) unstable; urgency=low
+
+  * Fixing 7772: wrong error on commit of conntrack table size etc.
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Mon, 06 Feb 2012 16:55:39 -0800
+
 vyatta-conntrack-sync (0.33) unstable; urgency=low
 
   * Fix 7763: use any when mask for sport is zero
