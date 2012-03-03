@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.35) unstable; urgency=low
+
+  * new branch
+
+ -- Deepti Kulkarni <deepti@vyatta.com>  Sat, 03 Mar 2012 02:25:51 -0800
+
 vyatta-conntrack-sync (0.34) unstable; urgency=low
 
   * Fixing 7772: wrong error on commit of conntrack table size etc.
