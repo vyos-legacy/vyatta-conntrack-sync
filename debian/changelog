@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.36) unstable; urgency=low
+
+  * fixing 7861, resolve protocol name from /etc/protocols
+
+ -- Gaurav <gaurav.sinha@vyatta.com>  Mon, 09 Apr 2012 18:10:06 -0700
+
 vyatta-conntrack-sync (0.35) unstable; urgency=low
 
   * new branch
