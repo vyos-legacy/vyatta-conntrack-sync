@@ -28,6 +28,8 @@ use Getopt::Long;
 use XML::Simple;
 use Data::Dumper;
 use POSIX;
+use lib "/opt/vyatta/share/perl5";
+use Vyatta::Conntrack::ConntrackUtil;
 
 use warnings;
 use strict;
@@ -36,6 +38,7 @@ my $CONNTRACKD_BIN='/usr/sbin/conntrackd';
 my $CONNTRACKD_CONFIG='/etc/conntrackd/conntrackd.conf';
 
 my $format = "%-30s %-30s %-18s";
+my $href; #reference to hash containing protocol-num to name key-value pairs
 
 sub add_xml_root {
     my $xml = shift;
@@ -50,6 +53,7 @@ sub print_expect_xml {
     my $flow = 0;
 
     my %flowh;
+    $href = process_protocols();
     while (1) {
         last if ! defined $data->{flow}[$flow];
         my $flow_ref = $data->{flow}[$flow];
@@ -68,6 +72,9 @@ sub print_expect_xml {
                         $dport = $expected_l4->{dport}[0];
                         $proto = $l4_ref->{protoname};
                         $protonum = $l4_ref->{protonum};
+                        if (($proto eq 'unknown') and (defined($protonum))) {
+                          $proto = lc(${$href}{$protonum});  
+                        }
                         my $mask_ref = $l4_ref->{mask}[0];
                         my $mask_sport = $mask_ref->{sport}[0];
                         if ($mask_sport eq '0') {
@@ -98,6 +105,7 @@ sub print_xml {
     my $flow = 0;
 
     my %flowh;
+    $href = process_protocols();
     while (1) {
         my $meta = 0;
         last if ! defined $data->{flow}[$flow];
@@ -119,6 +127,9 @@ sub print_xml {
                         $dport{$dir} = $l4_ref->{dport}[0];
                         $proto{$dir} = $l4_ref->{protoname};
                         $protonum{$dir} = $l4_ref->{protonum};
+                        if (($proto{$dir} eq 'unknown') and (defined($protonum{$dir}))) {
+                          $proto{$dir} = lc(${$href}{$protonum{$dir}});  
+                        }
                     }
                 }
             } elsif ($dir eq 'independent') {
