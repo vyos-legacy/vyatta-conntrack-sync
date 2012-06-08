@@ -63,6 +63,17 @@ my $MULTICAST_SECTION_START  = "\tMulticast {\n";
 my $OPTIONS_SECTION_START    = "\tOptions {\n";
 my $OPTIONS_EXPECTATIONSYNC_START    = "\t\tExpectationSync {\n";
 
+my $HELPER_SECTION_START     = "Helper {\n";
+my $RPC_TCP_START            = "\tType rpc inet tcp {\n";  
+my $TNS_START                = "\tType tns inet tcp {\n";  
+my $RPC_UDP_START            = "\tType rpc inet udp {\n";  
+my $QUEUE_RPC_TCP            = "\t\tQueueNum 3\n";  
+my $QUEUE_RPC_UDP            = "\t\tQueueNum 4\n";  
+my $QUEUE_TNS_TCP            = "\t\tQueueNum 5\n";  
+my $POLICY_RPC               = "\t\tPolicy rpc {\n";
+my $POLICY_TNS               = "\t\tPolicy tns {\n";
+my $EXPECT_MAX               = "\t\t\tExpectMax 1\n";
+my $EXPECT_TIMEOUT           = "\t\t\tExpectTimeout 300\n";
 
 # TODO : kernel-space event filtering saves some CPU cycles by avoiding the
 # copy of the event message from kernel-space to user-space. The kernel-space 
@@ -178,7 +189,7 @@ sub generate_conntrackd_config {
 
   my $expect_all_flag = 'false';
   my $expect_sync_configured = 'false';
-
+  
   my $intf_name = get_conntracksync_val( "returnValue", "interface" );
   my @intf_ip = Vyatta::Misc::getIP( $intf_name, '4' );
   my @iponly = split( '/', $intf_ip[0] );
@@ -265,6 +276,8 @@ sub generate_conntrackd_config {
 
   # SYNC SECTION END
   $output .= "$SECTION_END";
+
+  $output = write_helper_section($output);
 
   # GENERATE GENERAL SECTION
   $output .= "\n#\n# General settings\n#\n";
@@ -444,6 +457,44 @@ sub failover_mechanism_checks {
   }
 
   return $err_string;
+}
+
+# This section is not configurable via CLI, these are the defaults we use.
+# Disabling user-space helper modules is via CLI, modifying iptables rules in 
+# VYATTA_CT_HELPER chain. 
+sub
+write_helper_section {
+
+  my ($output) = @_;
+  $output .= "$HELPER_SECTION_START";  
+  $output .= "$RPC_TCP_START";  
+  $output .= "$QUEUE_RPC_TCP";  
+  $output .= "$POLICY_RPC";  
+  $output .= "$EXPECT_MAX";  
+  $output .= "$EXPECT_TIMEOUT";  
+  $output .= "\t\t$SECTION_END";  
+  $output .= "\t$SECTION_END";  
+
+  $output .= "$RPC_UDP_START";  
+  $output .= "$QUEUE_RPC_UDP";  
+  $output .= "$POLICY_RPC";  
+  $output .= "$EXPECT_MAX";  
+  $output .= "$EXPECT_TIMEOUT";  
+  $output .= "\t\t$SECTION_END";  
+  $output .= "\t$SECTION_END";  
+
+  $output .= "$TNS_START";  
+  $output .= "$QUEUE_TNS_TCP";  
+  $output .= "$POLICY_TNS";  
+  $output .= "$EXPECT_MAX";  
+  $output .= "$EXPECT_TIMEOUT";  
+  $output .= "\t\t$SECTION_END";  
+  $output .= "\t$SECTION_END";  
+
+  $output .= "$SECTION_END";  
+  print "$output";
+  return $output;
+  #end helper section
 }
 
 sub expect_sync_protocols_checks() {
