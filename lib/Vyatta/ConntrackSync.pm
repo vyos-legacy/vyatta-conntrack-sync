@@ -492,7 +492,6 @@ write_helper_section {
   $output .= "\t$SECTION_END";  
 
   $output .= "$SECTION_END";  
-  print "$output";
   return $output;
   #end helper section
 }
