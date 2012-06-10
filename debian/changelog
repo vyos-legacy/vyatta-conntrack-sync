@@ -1,3 +1,34 @@
+vyatta-conntrack-sync (0.34+oxnard2) unstable; urgency=low
+
+  * Merge pacifica head to backport user space helpers  
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Sun, 10 May 2012 02:23:08 -0800
+
+vyatta-conntrack-sync (0.38) unstable; urgency=low
+
+  * removing unwanted print
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 08 Jun 2012 18:41:15 -0700
+
+vyatta-conntrack-sync (0.38) unstable; urgency=low
+
+  * removing unwanted print
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 08 Jun 2012 18:41:15 -0700
+
+vyatta-conntrack-sync (0.37) unstable; urgency=low
+
+  * new function to write helpers specific configuration in
+    conntrackd.conf.
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 08 Jun 2012 14:16:31 -0700
+
+vyatta-conntrack-sync (0.36) unstable; urgency=low
+
+  * fixing 7861, resolve protocol name from /etc/protocols
+
+ -- Gaurav <gaurav.sinha@vyatta.com>  Mon, 09 Apr 2012 18:10:06 -0700
+
 vyatta-conntrack-sync (0.34+oxnard1) unstable; urgency=low
 
   * new branch
