@@ -260,12 +260,22 @@ sub generate_conntrackd_config {
       if ($expect_all_flag eq 'true') {
          $output .= "\t\t\tftp\n";
          $output .= "\t\t\tsip\n"; 
-         $output .= "\t\t\th323\n"; 
+         #h323 is now enabled with the following three. 
+         $output .= "\t\t\tras\n"; 
+         $output .= "\t\t\tq.931\n"; 
+         $output .= "\t\t\th.245\n"; 
+    
  #       $output .= NFS 
  #       $output .= SQL*net 
       } else {
          foreach (@expect_sync_protocols) {
- 	     $output .= "\t\t\t$_\n";
+             if ($_ eq 'h323') {
+                 $output .= "\t\t\tras\n";
+                 $output .= "\t\t\tq.931\n";
+                 $output .= "\t\t\th.245\n";
+             } else {
+ 	         $output .= "\t\t\t$_\n";
+             }
          } 
       }
       # Expectation sync end 
