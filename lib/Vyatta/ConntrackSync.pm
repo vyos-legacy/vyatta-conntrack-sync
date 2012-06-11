@@ -264,16 +264,21 @@ sub generate_conntrackd_config {
          $output .= "\t\t\tras\n"; 
          $output .= "\t\t\tq.931\n"; 
          $output .= "\t\t\th.245\n"; 
-    
- #       $output .= NFS 
- #       $output .= SQL*net 
+         $output .= "\t\t\ttns\n"; 
+         $output .= "\t\t\trpc\n"; 
       } else {
          foreach (@expect_sync_protocols) {
              if ($_ eq 'h323') {
                  $output .= "\t\t\tras\n";
                  $output .= "\t\t\tq.931\n";
                  $output .= "\t\t\th.245\n";
-             } else {
+             } elsif ($_ eq 'nfs') {
+                 #internally helper name is rpc
+                 $output .= "\t\t\trpc\n";
+               } elsif ($_ eq 'sqlnet') {
+                 #internally helper name is tns
+                 $output .= "\t\t\ttns\n";
+               } else {
  	         $output .= "\t\t\t$_\n";
              }
          } 
