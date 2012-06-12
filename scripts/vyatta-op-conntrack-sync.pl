@@ -90,7 +90,7 @@ sub ctsync_status {
   print "last state transition : $failover_state";
   if ($expect_list) {
       if ($expect_list eq 'all') {
-          print "ExpectationSync       : enabled for $expect_list: ftp, sip, h323"; 
+          print "ExpectationSync       : enabled for $expect_list: ftp, sip, h323, nfs, sqlnet"; 
       } else {
           print "ExpectationSync       : enabled for $expect_list"; 
       }
