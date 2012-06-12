@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.41) unstable; urgency=low
+
+  * fixing 8140
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Tue, 12 Jun 2012 15:59:51 -0700
+
 vyatta-conntrack-sync (0.40) unstable; urgency=low
 
   * add nfs / sqlnet to expect sync configuration.
