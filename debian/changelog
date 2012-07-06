@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.34+oxnard6) unstable; urgency=low
+
+  * Fixing 8092
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Fri, 06 Jul 2012 10:40:21 -0700
+
 vyatta-conntrack-sync (0.34+oxnard5) unstable; urgency=low
 
   * fixing 8182
