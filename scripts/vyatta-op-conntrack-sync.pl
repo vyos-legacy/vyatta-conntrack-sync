@@ -48,9 +48,6 @@ sub ctsync_status {
   my @failover_mechanism =
     get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
   my $ct_sync_intf = get_conntracksync_val( "returnOrigValue", "interface" );
-  my $service_uptime = `sudo /usr/sbin/conntrackd -s runtime | grep 'daemon uptime'`;
-  chomp $service_uptime;
-  $service_uptime =~ s/daemon uptime: //;
 
   my $cluster_grp = undef;
   my $vrrp_sync_grp = undef;
@@ -82,7 +79,6 @@ sub ctsync_status {
       }
   }
   print "\n";
-  print "uptime                : $service_uptime\n";
   print "sync-interface        : $ct_sync_intf\n";
   print "failover-mechanism    : $failover_mechanism[0]";
   print " [group $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
