@@ -53,7 +53,7 @@ sub print_expect_xml {
     my $flow = 0;
 
     my %flowh;
-    $href = process_protocols();
+    $href = Vyatta::Conntrack::ConntrackUtil::process_protocols();
     while (1) {
         last if ! defined $data->{flow}[$flow];
         my $flow_ref = $data->{flow}[$flow];
@@ -105,7 +105,7 @@ sub print_xml {
     my $flow = 0;
 
     my %flowh;
-    $href = process_protocols();
+    $href = Vyatta::Conntrack::ConntrackUtil::process_protocols();
     while (1) {
         my $meta = 0;
         last if ! defined $data->{flow}[$flow];
