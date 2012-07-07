@@ -7,6 +7,8 @@ CONNTRACKD_CONFIG=/etc/conntrackd/conntrackd.conf
 if /opt/vyatta/bin/sudo-users/vyatta-op-conntrack-sync.pl  --action=is_ctsync_set --action=is_expsync_set; then
   echo -e "\nMain Table Statistics:\n\n"
   sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -s
-  echo -e "\nExpect Table Statistics:\n\n"
-  sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -s exp
+  if cli-shell-api existsActive service conntrack-sync expect-sync; then
+    echo -e "\nExpect Table Statistics:\n\n"
+    sudo $CONNTRACKD_BIN -C $CONNTRACKD_CONFIG -s exp
+  fi
 fi
