@@ -38,9 +38,16 @@ sub is_conntracksync_configured {
   return;
 }
 sub is_expectsync_configured {
-  my @protocols = get_conntracksync_val('returnOrigValue', 'expect-sync');
-  return "expect-sync not configured" if !@protocols;
-  return;
+  my $conntrack_sync_intf = get_conntracksync_val('returnOrigValue', 'interface');
+  return "conntrack-sync not configured" if ! defined $conntrack_sync_intf;
+
+  my @expect_sync_protocols = 
+      get_conntracksync_val("returnOrigValues", "expect-sync");
+  if (@expect_sync_protocols) { 
+    return;
+  } else {
+    return "expect-sync not configured";
+  }
 }
 
 sub ctsync_status {
