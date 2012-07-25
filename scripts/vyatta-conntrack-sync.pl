@@ -38,6 +38,12 @@ my $VRRP_UPDATE = '/opt/vyatta/sbin/vyatta-keepalived.pl';
 my $CONNTRACK_SYNC_ERR = 'conntrack-sync error:';
 my $FAILOVER_STATE_FILE = '/var/run/vyatta-conntrackd-failover-state';
 
+sub require_failover_restart {
+  my $config = new Vyatta::Config;
+  $config->setLevel('service conntrack-sync failover-mechanism');
+  return $config->isChanged();
+}
+
 sub conntrackd_restart {
   my ($HA, $ORIG_HA) = @_;
   my $stop_orig_HA = 'false';
@@ -63,11 +69,12 @@ sub conntrackd_restart {
     # remove old transition state
     unlink($FAILOVER_STATE_FILE);
 
-    # indicate to clustering that it needs to execute 
-    # conntrack-sync actions on state transitions
-    $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
-    return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
-
+    if (require_failover_restart()) {
+      # indicate to clustering that it needs to execute 
+      # conntrack-sync actions on state transitions
+      $err = run_cmd("$CLUSTER_UPDATE --conntrackd_service='vyatta-cluster-conntracksync'");
+      return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
+    }
   } elsif ( $HA eq 'vrrp' ) {
 
     # if needed; free clustering from conntrack-sync actions
@@ -80,11 +87,12 @@ sub conntrackd_restart {
     # remove old transition state
     unlink($FAILOVER_STATE_FILE);
 
-    # indicate to VRRP that it needs to execute
-    # conntrack-sync actions on state transitions
-    $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
-    return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
-
+    if (require_failover_restart()) {
+      # indicate to VRRP that it needs to execute
+      # conntrack-sync actions on state transitions
+      $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
+      return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
+    }
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";
   }
