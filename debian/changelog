@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.45+pacifica1) unstable; urgency=low
+
+  * new branch
+
+ -- John Southworth <john.southworth@vyatta.com>  Fri, 12 Oct 2012 18:47:56 -0700
+
 vyatta-conntrack-sync (0.45) unstable; urgency=low
 
   * fix for 6843, reload failover mechanism when there is a change in
