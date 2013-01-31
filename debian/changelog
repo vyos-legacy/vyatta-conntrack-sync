@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.46+daisy2) unstable; urgency=low
+
+  * Fixing 8091, missing \n char in show conntrack-sync status
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 30 Jan 2013 16:10:23 -0800
+
 vyatta-conntrack-sync (0.46+daisy1) unstable; urgency=low
 
   * create daisy branch
