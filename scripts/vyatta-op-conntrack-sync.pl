@@ -69,7 +69,7 @@ sub ctsync_status {
 	"failover-mechanism vrrp sync-group" );   
   }
   
-  my $failover_state = "no transition yet!";
+  my $failover_state = "no transition yet!\n";
   if (-e $FAILOVER_STATE_FILE) {
 	$failover_state = `cat $FAILOVER_STATE_FILE`;
   }
