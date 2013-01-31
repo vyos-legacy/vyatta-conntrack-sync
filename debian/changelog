@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.34+oxnard10) unstable; urgency=low
+
+  * Fixing 8091, missing \n char in show conntrack-sync status
+
+ -- Gaurav Sinha <gaurav.sinha@vyatta.com>  Wed, 30 Jan 2013 16:15:45 -0800
+
 vyatta-conntrack-sync (0.34+oxnard9) unstable; urgency=low
 
   * fixing 8207
