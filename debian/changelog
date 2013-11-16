@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.46+hydrogen1) unstable; urgency=low
+
+  * New branch
+
+ -- Daniil Baturin <daniil@baturin.org>  Sun, 17 Nov 2013 00:24:06 +0100
+
 vyatta-conntrack-sync (0.46+daisy2) unstable; urgency=low
 
   * Fixing 8091, missing \n char in show conntrack-sync status
