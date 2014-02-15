@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.46+vyos1+helium1) unstable; urgency=low
+
+  * New branch
+
+ -- Daniil Baturin <daniil@baturin.org>  Sat, 15 Feb 2014 17:07:32 +0100
+
 vyatta-conntrack-sync (0.46+hydrogen1) unstable; urgency=low
 
   * New branch
