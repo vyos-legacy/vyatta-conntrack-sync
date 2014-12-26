@@ -1,7 +1,7 @@
 Source: vyatta-conntrack-sync
 Section: contrib/net
 Priority: extra
-Maintainer: Vyatta Package Maintainers <maintainers@vyatta.com>
+Maintainer: VyOS Package Maintainers <maintainers@vyos.net>
 Build-Depends: debhelper (>= 5), 
  autotools-dev, 
 Standards-Version: 3.7.2
@@ -15,5 +15,5 @@ Depends:  perl (>= 5.8.8),
  libnetfilter-conntrack3 (>= 0.0.100-1~bpo50+1),
  libnfnetlink0 (>= 1.0.0-1~bpo50+1)
 Description: The vyatta-conntrack-sync package
- This package has the vyatta-conntrack-sync programs, and vyatta 
+ This package has the vyatta-conntrack-sync programs, and VyOS 
  configuration/operational templates and scripts.
