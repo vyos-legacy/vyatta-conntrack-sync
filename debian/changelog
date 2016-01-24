@@ -1,3 +1,12 @@
+vyatta-conntrack-sync (0.46+vyos2+current1) unstable; urgency=medium
+
+  [ Thomas Jepp ]
+  * Fix build depends.
+
+  [ Kim Hagen ]
+
+ -- Kim Hagen <kim.sidney@gmail.com>  Sun, 24 Jan 2016 15:08:29 -0500
+
 vyatta-conntrack-sync (0.46+vyos2+lithium3) unstable; urgency=low
 
   * vyatta-conntrack-sync: update dh_gencontrol with new development flag
