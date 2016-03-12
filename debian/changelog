@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (0.46+vyos2+lithium4) unstable; urgency=low
+
+  * Added UDP synchronization.
+
+ -- Alexander Verhaar <sanderv32@gmail.com>  Sat, 12 Mar 2016 01:24:07 +0100
+
 vyatta-conntrack-sync (0.46+vyos2+lithium3) unstable; urgency=low
 
   * vyatta-conntrack-sync: update dh_gencontrol with new development flag
