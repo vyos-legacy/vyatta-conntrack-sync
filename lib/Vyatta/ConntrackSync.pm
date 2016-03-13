@@ -196,6 +196,7 @@ sub generate_conntrackd_config {
   my @iponly = split( '/', $intf_ip[0] );
   my $mcast_grp = get_conntracksync_val( "returnValue", "mcast-group" );
   my $peer = get_conntracksync_val( "returnValue", "interface $intf_name[0] peer" );
+  my $listenon = get_conntracksync_val( "returnValue", "listen-address" );
 
   my $conntrack_table_size = `cat /proc/sys/net/netfilter/nf_conntrack_max`;
   my $cache_hash_size      = `cat /sys/module/nf_conntrack/parameters/hashsize`;
@@ -244,14 +245,15 @@ sub generate_conntrackd_config {
 
   if ( $peer ) {
     $output .= $UNICAST_SECTION_START;
-    $output .= "\t\tIPv4_address $peer\n";
-    $output .= "\t\tGroup 3781\n";
+    $output .= "\t\tIPv4_address $listenon\n" if (defined $listenon);
+    $output .= "\t\tIPv4_Destination_Address $peer\n";
+    $output .= "\t\tPort 3780\n";
   } else {
     $output .= $MULTICAST_SECTION_START;
     $output .= "\t\tIPv4_address $mcast_grp\n";
     $output .= "\t\tGroup 3780\n";
+    $output .= "\t\tIPv4_interface $iponly[0]\n";
   }
-  $output .= "\t\tIPv4_interface $iponly[0]\n";
   $output .= "\t\tInterface $intf_name[0]\n";
   $output .= "\t\tSndSocketBuffer $sync_queue_size\n";
   $output .= "\t\tRcvSocketBuffer $sync_queue_size\n";

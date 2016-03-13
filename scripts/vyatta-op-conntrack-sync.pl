@@ -33,13 +33,13 @@ use strict;
 my $FAILOVER_STATE_FILE = '/var/run/vyatta-conntrackd-failover-state';
 
 sub is_conntracksync_configured {
-  my $conntrack_sync_intf = get_conntracksync_val('returnOrigValue', 'interface');
-  return "conntrack-sync not configured" if ! defined $conntrack_sync_intf;
+  my @conntrack_sync_intf = get_conntracksync_val('listOrigNodes', 'interface');
+  return "conntrack-sync not configured" if ( scalar(@conntrack_sync_intf) == 0);
   return;
 }
 sub is_expectsync_configured {
-  my $conntrack_sync_intf = get_conntracksync_val('returnOrigValue', 'interface');
-  return "conntrack-sync not configured" if ! defined $conntrack_sync_intf;
+  my @conntrack_sync_intf = get_conntracksync_val('listOrigNodes', 'interface');
+  return "conntrack-sync not configured" if ( scalar(@conntrack_sync_intf) == 0);
 
   my @expect_sync_protocols = 
       get_conntracksync_val("returnOrigValues", "expect-sync");
@@ -54,7 +54,7 @@ sub ctsync_status {
 
   my @failover_mechanism =
     get_conntracksync_val( "listOrigNodes", "failover-mechanism" );
-  my $ct_sync_intf = get_conntracksync_val( "returnOrigValue", "interface" );
+  my @ct_sync_intf = get_conntracksync_val( "listOrigNodes", "interface" );
 
   my $cluster_grp = undef;
   my $vrrp_sync_grp = undef;
@@ -86,7 +86,7 @@ sub ctsync_status {
       }
   }
   print "\n";
-  print "sync-interface        : $ct_sync_intf\n";
+  print "sync-interface        : $ct_sync_intf[0]\n";
   print "failover-mechanism    : $failover_mechanism[0]";
   print " [group $cluster_grp]\n" if $failover_mechanism[0] eq 'cluster';
   print " [sync-group $vrrp_sync_grp]\n" if $failover_mechanism[0] eq 'vrrp';
