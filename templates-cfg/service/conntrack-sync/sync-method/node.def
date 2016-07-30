@@ -1,0 +1,7 @@
+type: txt
+default: "multicast"
+help: Method to use for syncing states
+val_help: multicast; Use multicast for conntrack-sync (default)
+val_help: unicast; Use unicast for conntrack-sync
+syntax:expression: pattern $VAR(@) "^(multicast|unicast)$" ; \
+"Invalid value for sync-protocol. Allowed values: multicast unicast"
