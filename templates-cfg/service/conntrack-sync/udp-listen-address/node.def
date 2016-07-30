@@ -1,0 +1,2 @@
+type: ipv4
+help: IPv4 address this router will use to listen for events (UNICAST ONLY:REQURIED)
