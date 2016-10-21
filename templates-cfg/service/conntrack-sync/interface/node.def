@@ -1,5 +1,4 @@
+tag:
 type: txt
-
 help: Interface to use for syncing conntrack entries [REQUIRED]
-
 allowed: ${vyatta_sbindir}/vyatta-interfaces.pl --show all

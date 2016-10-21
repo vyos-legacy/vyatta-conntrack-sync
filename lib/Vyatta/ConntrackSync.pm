@@ -60,6 +60,7 @@ my $GENERAL_SECTION_START    = "General {\n";
 my $SYNC_SECTION_START       = "Sync {\n";
 my $MODE_SECTION_START       = "\tMode FTFW {\n";
 my $MULTICAST_SECTION_START  = "\tMulticast {\n";
+my $UNICAST_SECTION_START    = "\tUDP {\n";
 my $OPTIONS_SECTION_START    = "\tOptions {\n";
 my $OPTIONS_EXPECTATIONSYNC_START    = "\t\tExpectationSync {\n";
 
@@ -190,10 +191,12 @@ sub generate_conntrackd_config {
   my $expect_all_flag = 'false';
   my $expect_sync_configured = 'false';
   
-  my $intf_name = get_conntracksync_val( "returnValue", "interface" );
-  my @intf_ip = Vyatta::Misc::getIP( $intf_name, '4' );
+  my @intf_name = get_conntracksync_val( "listNodes", "interface" );
+  my @intf_ip = Vyatta::Misc::getIP( $intf_name[0], '4' );
   my @iponly = split( '/', $intf_ip[0] );
   my $mcast_grp = get_conntracksync_val( "returnValue", "mcast-group" );
+  my $peer = get_conntracksync_val( "returnValue", "interface $intf_name[0] peer" );
+  my $listenon = get_conntracksync_val( "returnValue", "listen-address" );
 
   my $conntrack_table_size = `cat /proc/sys/net/netfilter/nf_conntrack_max`;
   my $cache_hash_size      = `cat /sys/module/nf_conntrack/parameters/hashsize`;
@@ -240,15 +243,21 @@ sub generate_conntrackd_config {
   # mode section end
   $output .= "\t$SECTION_END";
 
-  $output .= $MULTICAST_SECTION_START;
-  $output .= "\t\tIPv4_address $mcast_grp\n";
-  $output .= "\t\tGroup 3780\n";
-  $output .= "\t\tIPv4_interface $iponly[0]\n";
-  $output .= "\t\tInterface $intf_name\n";
+  if ( $peer ) {
+    $output .= $UNICAST_SECTION_START;
+    $output .= "\t\tIPv4_address $listenon\n" if (defined $listenon);
+    $output .= "\t\tIPv4_Destination_Address $peer\n";
+    $output .= "\t\tPort 3780\n";
+  } else {
+    $output .= $MULTICAST_SECTION_START;
+    $output .= "\t\tIPv4_address $mcast_grp\n";
+    $output .= "\t\tGroup 3780\n";
+    $output .= "\t\tIPv4_interface $iponly[0]\n";
+  }
+  $output .= "\t\tInterface $intf_name[0]\n";
   $output .= "\t\tSndSocketBuffer $sync_queue_size\n";
   $output .= "\t\tRcvSocketBuffer $sync_queue_size\n";
   $output .= "\t\tChecksum on\n";
-  # multicast section end
   $output .= "\t$SECTION_END";
 
   # If any expect-sync protocolis configured, write options section
@@ -358,15 +367,15 @@ sub interface_checks {
   my $err_string = undef;
 
   # make sure interface is defined
-  my $intf_name = get_conntracksync_val( "returnValue", "interface" );
-  if ( !defined $intf_name ) {
+  my @intf_name = get_conntracksync_val( "listNodes", "interface" );
+  if ( scalar(@intf_name) == 0 ) {
     $err_string = "$CONNTRACKSYNC_ERR_STRING interface not defined";
     return $err_string;
   }
 
   # also need to validate that interface exists on the system
   # and that it has an IP address assigned to it
-  my $intf = new Vyatta::Interface($intf_name);
+  my $intf = new Vyatta::Interface($intf_name[0]);
   if ($intf) {
     if ( !$intf->exists() ) {
       $err_string = "$CONNTRACKSYNC_ERR_STRING interface does not exist on system";
