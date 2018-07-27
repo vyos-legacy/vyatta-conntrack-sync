@@ -34,7 +34,7 @@ use strict;
 my $DAEMON         = '/usr/sbin/conntrackd';
 my $INIT_SCRIPT    = '/etc/init.d/conntrackd';
 my $CLUSTER_UPDATE = '/opt/vyatta/sbin/vyatta-update-cluster.pl';
-my $VRRP_UPDATE = '/opt/vyatta/sbin/vyatta-keepalived.pl';
+my $VRRP_UPDATE = '/usr/libexec/vyos/conf_mode/vrrp.py';
 my $CONNTRACK_SYNC_ERR = 'conntrack-sync error:';
 my $FAILOVER_STATE_FILE = '/var/run/vyatta-conntrackd-failover-state';
 
@@ -61,7 +61,7 @@ sub conntrackd_restart {
 
     # if needed; free VRRP from conntrack-sync actions
     if ($stop_orig_HA eq 'true') {
-       $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
+       $err = run_cmd("$VRRP_UPDATE");
        return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
        sleep 1; # let the old mechanism settle down before switching to new one
     }
@@ -90,7 +90,7 @@ sub conntrackd_restart {
     if (require_failover_restart()) {
       # indicate to VRRP that it needs to execute
       # conntrack-sync actions on state transitions
-      $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
+      $err = run_cmd("$VRRP_UPDATE");
       return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
     }
   } else {
@@ -111,7 +111,7 @@ sub conntrackd_stop {
     $err = run_cmd("$CLUSTER_UPDATE");
     return "$CONNTRACK_SYNC_ERR error restarting clustering!" if $err != 0;
   } elsif ( $ORIG_HA eq 'vrrp' ) {
-    $err = run_cmd("$VRRP_UPDATE --vrrp-action update-ctsync --ctsync true");
+    $err = run_cmd("$VRRP_UPDATE");
     return "$CONNTRACK_SYNC_ERR error restarting VRRP daemon!" if $err != 0;
   } else {
     return "$CONNTRACK_SYNC_ERR undefined HA!";

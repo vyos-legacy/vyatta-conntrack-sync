@@ -30,7 +30,6 @@ use Vyatta::Config;
 use Vyatta::Misc;
 use Vyatta::Interface;
 use Vyatta::TypeChecker;
-use Vyatta::Keepalived;
 use base qw(Exporter);
 
 our @EXPORT = qw(
@@ -450,27 +449,18 @@ sub failover_mechanism_checks {
     }
 
     # make sure VRRP is running
-    if (!Vyatta::Keepalived::is_running()) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING VRRP isn't running";
-      return $err_string;
+    my $vrrp_running = run_cmd("pgrep keepalived >&/dev/null");
+    if ($vrrp_running != 0) {
+        $err_string = "$CONNTRACKSYNC_ERR_STRING VRRP isn't running";
+        return $err_string;
     }
 
     # make sure vrrp sync-group exists
-    my $sync_grp_exists = 'false';
-    my @vrrp_intfs = Vyatta::Keepalived::list_vrrp_intf('isActive');
-    foreach my $vrrp_intf (@vrrp_intfs) {
-      my @vrrp_groups = list_vrrp_group($vrrp_intf, 'listOrigPlusComNodes');
-      foreach my $vrrp_group (@vrrp_groups) {
-        my $sync_grp = list_vrrp_sync_group($vrrp_intf, $vrrp_group, 'returnOrigPlusComValue');
-        if (defined $sync_grp && $sync_grp eq "$vrrp_sync_grp") {
-          $sync_grp_exists = 'true';
-          last;
-        }
-      }
-      last if $sync_grp_exists eq 'true';
-    }
+    my $config_top = new Vyatta::Config();
+    my $sync_grp_exists = $config_top->exists("high-availability vrrp sync-group $vrrp_sync_grp");
 
-    if ($sync_grp_exists eq 'false') {
+
+    if (!$sync_grp_exists) {
       $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp sync-group does not exist";
       return $err_string;
     } 
@@ -575,7 +565,8 @@ sub print_dbg_config_output {
 }
 
 sub get_vrrp_sync_grps {
-  my @sync_grps = Vyatta::Keepalived::list_all_vrrp_sync_grps();
+  my $config = new Vyatta::Config();
+  my @sync_grps = $config->listNodes("high-availability vrrp sync-group");
   return @sync_grps;
 }
 
