@@ -1,3 +1,9 @@
+vyatta-conntrack-sync (1.2.0-1) stable; urgency=medium
+
+  * New branch.
+
+ -- Daniil Baturin <daniil@baturin.org>  Fri, 28 Sep 2018 21:55:48 +0200
+
 vyatta-conntrack-sync (0.46+vyos2+current3) unstable; urgency=medium
 
   * Remove undeclared dependencies on code from vyatta-vrrp
