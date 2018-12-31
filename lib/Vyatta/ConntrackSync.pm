@@ -416,7 +416,7 @@ sub failover_mechanism_checks {
 
     # make sure cluster group is defined
     if ( !defined $cluster_grp ) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster group not defined";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster group must be defined";
       return $err_string;
     }
 
@@ -434,7 +434,7 @@ sub failover_mechanism_checks {
     if ( scalar(@cluster_grps) == 0
       || scalar( grep( /^$cluster_grp$/, @cluster_grps ) ) == 0 )
     {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster group does not exist";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING cluster group $cluster_grp is not configured";
       return $err_string;
     }
 
@@ -444,7 +444,7 @@ sub failover_mechanism_checks {
 
     # make sure vrrp sync group is defined
     if ( !defined $vrrp_sync_grp ) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp sync-group not defined";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING VRRP sync-group must be defined";
       return $err_string;
     }
 
@@ -461,7 +461,7 @@ sub failover_mechanism_checks {
 
 
     if (!$sync_grp_exists) {
-      $err_string = "$CONNTRACKSYNC_ERR_STRING vrrp sync-group does not exist";
+      $err_string = "$CONNTRACKSYNC_ERR_STRING VRRP sync-group $vrrp_sync_grp is not configured";
       return $err_string;
     } 
 
