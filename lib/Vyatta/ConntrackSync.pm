@@ -121,6 +121,13 @@ sub get_conntracksync_val {
   return $config->$value_func("$rel_path");
 }
 
+sub get_conntracksync_exist {
+  my ( $rel_path ) = @_;
+  my $config = new Vyatta::Config;
+  $config->setLevel('service conntrack-sync');
+  return $config->exists("$rel_path");
+}
+
 sub get_config_val {
   my ( $value_func, $level, $rel_path ) = @_;
   my $config = new Vyatta::Config;
@@ -239,6 +246,12 @@ sub generate_conntrackd_config {
   $output .= $SYNC_SECTION_START;
 
   $output .= $MODE_SECTION_START;
+
+  # Disable external cache
+  if  ( get_conntracksync_exist( "disable-external-cache" ) ) {
+    $output .= "\t\tDisableExternalCache On\n";
+  }
+
   # mode section end
   $output .= "\t$SECTION_END";
 
