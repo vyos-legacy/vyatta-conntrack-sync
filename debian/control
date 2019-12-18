@@ -12,7 +12,6 @@ Depends:  perl (>= 5.8.8),
  vyatta-bash | bash (>= 3.1),
  conntrack (>= 0.9.14),
  conntrackd (>= 0.9.14),
- conntrack-helpers,
  libnetfilter-conntrack3 (>= 0.0.100-1~bpo50+1),
  libnfnetlink0 (>= 1.0.0-1~bpo50+1)
 Description: The vyatta-conntrack-sync package
