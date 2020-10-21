@@ -71,7 +71,7 @@ sub ctsync_status {
   
   my $failover_state = "no transition yet!\n";
   if (-e $FAILOVER_STATE_FILE) {
-	$failover_state = `cat $FAILOVER_STATE_FILE`;
+	$failover_state = `sudo cat $FAILOVER_STATE_FILE`;
   }
   my @expect_sync_protocols = 
       get_conntracksync_val("returnOrigValues", "expect-sync");
