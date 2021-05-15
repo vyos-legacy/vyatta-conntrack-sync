@@ -318,7 +318,6 @@ sub generate_conntrackd_config {
   # GENERATE GENERAL SECTION
   $output .= "\n#\n# General settings\n#\n";
   $output .= $GENERAL_SECTION_START;
-  $output .= "\tNice -20\n";
   $output .= "\tHashSize $cache_hash_size\n"
     ;    # this should be same as 'firewall conntrack-hash-size'
          #  i.e. /sys/module/nf_conntrack/parameters/hashsize
