@@ -329,7 +329,6 @@ sub generate_conntrackd_config {
   $output .= "\tLockFile $LOCK_FILE\n";
   $output .= "\tUNIX {\n";
   $output .= "\t\tPath $CTL_FILE\n";
-  $output .= "\t\tBacklog 20\n";
   $output .= "\t}\n";
   $output .= "\tNetlinkBufferSize 2097152\n";
   $output .= "\tNetlinkBufferSizeMaxGrowth $event_listen_queue_size\n";
